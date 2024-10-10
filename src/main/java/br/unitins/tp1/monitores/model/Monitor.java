@@ -38,7 +38,7 @@ public class Monitor extends PanacheEntityBase {
 
     public void setPreco(Double preco) {
         this.preco = preco;
-    }    
+    }
 
     
 }
