@@ -1,5 +1,41 @@
-insert into monitor(nome, preco) values ('ALIENWARE BRABO', 120.0);
-insert into monitor(nome, preco) values ('CONCORDIA VISHE', 110.0);
-insert into monitor(nome, preco) values ('LG BRABO', 900.0);
-insert into monitor(nome, preco) values ('AOC PESSIMO', 1100.0);
-insert into monitor(nome, preco) values ('ALIENWARE RUIM', 1200.0);
+insert into Estado(nome, sigla) values 
+('tocantins', 'to'),
+('goias', 'go'),
+('distrito federal', 'df'),
+('minas gerais', 'mg'),
+('sao paulo', 'sp'),
+('rio de janeiro', 'rj'),
+('parana', 'pr'),
+('santa catarina', 'sc'),
+('rio grande do sul', 'rs'),
+('mato grosso', 'mt'),
+('mato grosso do sul', 'ms'),
+('pará', 'pa'),
+('amazonas', 'am'),
+('rondonia', 'ro'),
+('acre', 'ac');
+
+insert into Municipio(nome, id_estado) values
+('Palmas', 1),
+('Araguaina', 1),
+('Inhumas', 2),
+('Goiania', 2),
+('Brasilia', 3),
+('Belo Horizonte', 4),
+('Uberlandia', 4),
+('Sao Paulo', 5),
+('Campinas', 5),
+('Rio de Janeiro', 6),
+('Niteroi', 6),
+('Curitiba', 7),
+('Londrina', 7),
+('Florianopolis', 8),
+('Joinville', 8),
+('Porto Alegre', 9),
+('Caxias do Sul', 9),
+('Cuiaba', 10),
+('Campo Grande', 11),
+('Belem', 12),
+('Manaus', 13),
+('Porto Velho', 14),
+('Rio Branco', 15);

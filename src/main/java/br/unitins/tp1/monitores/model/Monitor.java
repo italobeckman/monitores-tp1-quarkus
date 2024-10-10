@@ -1,43 +1,62 @@
 package br.unitins.tp1.monitores.model;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 
 @Entity
-public class Monitor extends PanacheEntityBase {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String nome;
-
+public class Monitor extends DefaultEntity {
+    
+    @Column(length = 30, nullable = false)
+    private String modelo;
+    @Column(length = 10, nullable = false)
     private Double preco;
 
-    public Long getId() {
-        return id;
-    }
+    @Column(length = 15, nullable = false)
+    private String marca;
+    @Column(length = 3, nullable = false)
+    private String taxaAtualizacao;
+    @Column(length = 3, nullable = false)
+    private String tempoResposta;
+    @Column(length = 3, nullable = false)
+    private String peso;
+    
 
-    public void setId(Long id) {
-        this.id = id;
+    public String getModelo() {
+        return modelo;
     }
-
-    public String getNome() {
-        return nome;
+    public void setModelo(String modelo) {
+        this.modelo = modelo;
     }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
     public Double getPreco() {
         return preco;
     }
-
     public void setPreco(Double preco) {
         this.preco = preco;
+    }
+    
+    public String getMarca() {
+        return marca;
+    }
+    public void setMarca(String marca) {
+        this.marca = marca;
+    }
+    public String getTaxaAtualizacao() {
+        return taxaAtualizacao;
+    }
+    public void setTaxaAtualizacao(String taxaAtualizacao) {
+        this.taxaAtualizacao = taxaAtualizacao;
+    }
+    public String getTempoResposta() {
+        return tempoResposta;
+    }
+    public void setTempoResposta(String tempoResposta) {
+        this.tempoResposta = tempoResposta;
+    }
+    public String getPeso() {
+        return peso;
+    }
+    public void setPeso(String peso) {
+        this.peso = peso;
     }
 
     
