@@ -44,10 +44,12 @@ public class EstadoServiceImpl implements EstadoService {
     @Override
     @Transactional
     public Estado update(Long id, EstadoRequestDTO dto) {
-        Estado e = estadoRepository.findById(id);
-        e.setNome(dto.nome());
-        e.setSigla(dto.sigla());
-        return e;
+        Estado estado = estadoRepository.findById(id);
+
+        estado.setNome(dto.nome());
+        estado.setSigla(dto.sigla());
+
+        return estado;
     }
 
     @Override
@@ -55,6 +57,5 @@ public class EstadoServiceImpl implements EstadoService {
     public void delete(Long id) {
         estadoRepository.deleteById(id);
     }
-    
     
 }

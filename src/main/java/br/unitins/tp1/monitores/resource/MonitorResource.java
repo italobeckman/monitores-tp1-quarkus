@@ -1,14 +1,8 @@
 package br.unitins.tp1.monitores.resource;
 
-import java.util.List;
-
 import br.unitins.tp1.monitores.dto.monitor.MonitorRequestDTO;
 import br.unitins.tp1.monitores.dto.monitor.MonitorResponseDTO;
-import br.unitins.tp1.monitores.dto.municipio.MunicipioRequestDTO;
-import br.unitins.tp1.monitores.dto.municipio.MunicipioResponseDTO;
-import br.unitins.tp1.monitores.model.Monitor;
 import br.unitins.tp1.monitores.service.MonitorService;
-import jakarta.ws.rs.Produces;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -17,6 +11,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
