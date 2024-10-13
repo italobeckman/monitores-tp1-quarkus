@@ -1,8 +1,8 @@
 package br.unitins.tp1.monitores.resource;
 
-import br.unitins.tp1.monitores.dto.municipio.MunicipioRequestDTO;
-import br.unitins.tp1.monitores.dto.municipio.MunicipioResponseDTO;
-import br.unitins.tp1.monitores.service.MunicipioService;
+import br.unitins.tp1.monitores.dto.pessoa.PessoaFisicaRequestDTO;
+import br.unitins.tp1.monitores.dto.pessoa.PessoaFisicaResponseDTO;
+import br.unitins.tp1.monitores.service.PessoaFisicaService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -17,56 +17,56 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 
-@Path("/municipios")
+@Path("/pessoasfisicas")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class MunicipioResource {
+public class PessoaFisicaResource {
 
     @Inject
-    public MunicipioService municipioService;
+    public PessoaFisicaService pessoafisicaService;
 
     @GET
     @Path("/{id}")
     public Response findById(@PathParam("id") Long id) {
-        return Response.ok(MunicipioResponseDTO.valueOf(municipioService.findById(id))).build();
+        return Response.ok(PessoaFisicaResponseDTO.valueOf(pessoafisicaService.findById(id))).build();
     }
 
     @GET
     @Path("/search/{nome}")
     public Response findByNome(@PathParam("nome") String nome) {
-        return Response.ok(municipioService.findByNome(nome).
+        return Response.ok(pessoafisicaService.findByNome(nome).
                     stream().
-                    map(o -> MunicipioResponseDTO.valueOf(o)).
+                    map(o -> PessoaFisicaResponseDTO.valueOf(o)).
                     toList()).build();
     }
 
     @GET
     public Response findAll() {
-        return Response.ok(municipioService.findAll().
+        return Response.ok(pessoafisicaService.findAll().
                     stream().
-                    map(o -> MunicipioResponseDTO.valueOf(o)).
+                    map(o -> PessoaFisicaResponseDTO.valueOf(o)).
                     toList()).build();
     }
 
     @POST
-    public Response create(@Valid MunicipioRequestDTO dto) {
+    public Response create(@Valid PessoaFisicaRequestDTO dto) {
         return Response.status(Status.CREATED).entity(
-            MunicipioResponseDTO.valueOf(municipioService.create(dto))
+            PessoaFisicaResponseDTO.valueOf(pessoafisicaService.create(dto))
         ).build();
     
     }
 
     @PUT
     @Path("/{id}")
-    public Response update(@PathParam("id") Long id, @Valid MunicipioRequestDTO dto) {
-        municipioService.update(id, dto);
+    public Response update(@PathParam("id") Long id, @Valid PessoaFisicaRequestDTO dto) {
+        pessoafisicaService.update(id, dto);
         return Response.noContent().build();
     }
 
     @DELETE
     @Path("/{id}")
     public Response delete(@PathParam("id") Long id) {
-        municipioService.delete(id);
+        pessoafisicaService.delete(id);
         return Response.noContent().build();
     }
     

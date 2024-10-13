@@ -19,5 +19,4 @@ public class DefaultEntity {
         this.id = id;
     }
 
-    
 }

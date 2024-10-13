@@ -1,8 +1,10 @@
 package br.unitins.tp1.monitores.service;
 
+import java.util.List;
+
 import br.unitins.tp1.monitores.dto.estado.EstadoRequestDTO;
 import br.unitins.tp1.monitores.model.Estado;
-import java.util.List;
+
 
 public interface EstadoService {
 

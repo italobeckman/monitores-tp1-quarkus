@@ -8,6 +8,7 @@ public class Estado extends DefaultEntity {
 
     @Column(length = 60, nullable = false)
     private String nome;
+
     @Column(length = 2, nullable = false)
     private String sigla;
 
@@ -27,4 +28,6 @@ public class Estado extends DefaultEntity {
         this.sigla = sigla;
     }
 
+    
+    
 }

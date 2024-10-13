@@ -1,20 +1,23 @@
 package br.unitins.tp1.monitores.service;
 
+import java.util.List;
+
 import br.unitins.tp1.monitores.dto.municipio.MunicipioRequestDTO;
 import br.unitins.tp1.monitores.model.Municipio;
-import java.util.List;
+
 
 public interface MunicipioService {
 
-    public List<Municipio> findAll();
+    Municipio findById(Long id);
 
-    public Municipio findById(Long Id);
+    List<Municipio> findByNome(String nome);
 
-    public List<Municipio> findByNome(String nome);
+    List<Municipio> findAll();
 
-    public Municipio update(Long id, MunicipioRequestDTO dto);
+    Municipio create(MunicipioRequestDTO dto);
 
-    public void delete(Long id);
+    Municipio update(Long id, MunicipioRequestDTO dto);
+
+    void delete(Long id); 
     
-    public Municipio create(MunicipioRequestDTO dto);
 }
