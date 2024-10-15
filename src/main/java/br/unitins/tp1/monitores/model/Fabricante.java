@@ -1,9 +1,14 @@
 package br.unitins.tp1.monitores.model;
 
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 @Entity
 public class Fabricante {
     @Id
@@ -13,18 +18,17 @@ public class Fabricante {
     private String cnpj;
     private String email;
 
-
+    
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "fabricante_id")
+    private List<TelefoneFabricante> listaTelefone;
+    
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Fabricante id(Long id) {
-        this.id = id;
-        return this;
     }
 
     public String getNome() {
@@ -58,4 +62,13 @@ public class Fabricante {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public List<TelefoneFabricante> getListaTelefone() {
+        return listaTelefone;
+    }
+
+    public void setListaTelefone(List<TelefoneFabricante> listaTelefone) {
+        this.listaTelefone = listaTelefone;
+    }
+    
 }
