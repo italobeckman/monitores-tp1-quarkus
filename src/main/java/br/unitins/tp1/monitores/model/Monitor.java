@@ -1,62 +1,117 @@
 package br.unitins.tp1.monitores.model;
 
-import jakarta.persistence.Column;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 
 @Entity
-public class Monitor extends DefaultEntity {
-    
-    @Column(length = 30, nullable = false)
-    private String modelo;
-    @Column(length = 10, nullable = false)
-    private Double preco;
+public class Monitor extends PanacheEntityBase {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column(length = 15, nullable = false)
+    private String nome;
     private String marca;
-    @Column(length = 3, nullable = false)
+    private String modelo;
+    private Double preco;
+    private Double tamanho;
     private String taxaAtualizacao;
-    @Column(length = 3, nullable = false)
     private String tempoResposta;
-    @Column(length = 3, nullable = false)
-    private String peso;
+    private Integer anoLancamento;
+
+    // @ManyToOne
+   // private Cor cor;
+
+   // @ManyToOne
+    // private Resolucao resolucao;
+
+    @ManyToOne
+    private Fabricante fabricante;
+
+    // @ManyToOne
+    // private CategoriaMonitor categoria; 
     
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getMarca() {
+        return marca;
+    }
+
+    public void setMarca(String marca) {
+        this.marca = marca;
+    }
+
+    public Double getPreco() {
+        return preco;
+    }
+
+    public void setPreco(Double preco) {
+        this.preco = preco;
+    }
+
+    public Double getTamanho() {
+        return tamanho;
+    }
+
+    public void setTamanho(Double tamanho) {
+        this.tamanho = tamanho;
+    }
+
+    public Integer getAnoLancamento() {
+        return anoLancamento;
+    }
+
+    public void setAnoLancamento(Integer anoLancamento) {
+        this.anoLancamento = anoLancamento;
+    }
+
+
+    public Fabricante getFabricante() {
+        return fabricante;
+    }
+
+    public void setFabricante(Fabricante fabricante) {
+        this.fabricante = fabricante;
+    }
 
     public String getModelo() {
         return modelo;
     }
+
     public void setModelo(String modelo) {
         this.modelo = modelo;
     }
-    public Double getPreco() {
-        return preco;
-    }
-    public void setPreco(Double preco) {
-        this.preco = preco;
-    }
-    
-    public String getMarca() {
-        return marca;
-    }
-    public void setMarca(String marca) {
-        this.marca = marca;
-    }
+
     public String getTaxaAtualizacao() {
         return taxaAtualizacao;
     }
+
     public void setTaxaAtualizacao(String taxaAtualizacao) {
         this.taxaAtualizacao = taxaAtualizacao;
     }
+
     public String getTempoResposta() {
         return tempoResposta;
     }
     public void setTempoResposta(String tempoResposta) {
         this.tempoResposta = tempoResposta;
-    }
-    public String getPeso() {
-        return peso;
-    }
-    public void setPeso(String peso) {
-        this.peso = peso;
     }
 
     

@@ -36,15 +36,14 @@ public class MonitorServiceImpl implements MonitorService {
     @Override
     @Transactional
     public Monitor update(Long id, MonitorRequestDTO dto) {
-        Monitor m = monitorRepository.findById(id);
+        Monitor monitor = monitorRepository.findById(id);
 
-        m.setModelo(dto.modelo());
-        m.setMarca(dto.marca());
-        m.setPreco(dto.preco());
-        m.setTaxaAtualizacao(dto.taxaAtualizacao());
-        m.setTempoResposta(dto.tempoResposta());
-        m.setPeso(dto.peso());
-        return m;
+        monitor.setModelo(dto.modelo());
+        monitor.setMarca(dto.marca());
+        monitor.setPreco(dto.preco());
+        monitor.setTaxaAtualizacao(dto.taxaAtualizacao());
+        monitor.setTempoResposta(dto.tempoResposta());
+        return monitor;
 
     }
 
@@ -63,7 +62,6 @@ public class MonitorServiceImpl implements MonitorService {
         monitor.setPreco(dto.preco());
         monitor.setTaxaAtualizacao(dto.taxaAtualizacao());
         monitor.setTempoResposta(dto.tempoResposta());
-        monitor.setPeso(dto.peso());
         monitorRepository.persist(monitor);
         return monitor;
     }
