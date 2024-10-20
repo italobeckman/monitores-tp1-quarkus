@@ -14,7 +14,9 @@ public record TelefoneFabricanteRequestDTO(
 
 	@NotBlank(message = "Número de telefone é obrigatório")
 	@Pattern(regexp = "\\d+", message = "Número de telefone deve conter apenas números")
-	String numero
+	String numero,
+
+	Long fabricante
 
 	) {
 	public static TelefoneFabricante valueOf(TelefoneFabricanteRequestDTO dto){

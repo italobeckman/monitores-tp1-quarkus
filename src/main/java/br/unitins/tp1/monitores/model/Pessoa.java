@@ -1,13 +1,6 @@
 package br.unitins.tp1.monitores.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
-
-@Entity
-@Inheritance(strategy = InheritanceType.JOINED)
-public class Pessoa extends DefaultEntity {
-
+public class Pessoa extends DefaultEntity  {
     private String nome;
 
     public String getNome() {
@@ -18,6 +11,5 @@ public class Pessoa extends DefaultEntity {
         this.nome = nome;
     }
 
-    
     
 }

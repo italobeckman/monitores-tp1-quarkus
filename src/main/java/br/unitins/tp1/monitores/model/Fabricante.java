@@ -1,7 +1,6 @@
 package br.unitins.tp1.monitores.model;
 
 import java.util.List;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,6 +17,8 @@ public class Fabricante {
     private String cnpj;
     private String email;
 
+    @OneToMany(mappedBy = "fabricante", cascade = CascadeType.ALL)
+    private List<Monitor> listaMonitor;
     
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "fabricante_id")
@@ -69,6 +70,14 @@ public class Fabricante {
 
     public void setListaTelefone(List<TelefoneFabricante> listaTelefone) {
         this.listaTelefone = listaTelefone;
+    }
+
+    public List<Monitor> getListaMonitor() {
+        return listaMonitor;
+    }
+
+    public void setListaMonitor(List<Monitor> listaMonitor) {
+        this.listaMonitor = listaMonitor;
     }
     
 }

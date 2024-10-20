@@ -3,7 +3,7 @@ package br.unitins.tp1.monitores.model;
 import jakarta.persistence.Entity;
 
 @Entity
-public class PessoaFisica extends Pessoa {
+public class Cliente extends Pessoa {
 
     private String cpf;
     private Sexo sexo;
@@ -23,5 +23,7 @@ public class PessoaFisica extends Pessoa {
     public void setSexo(Sexo sexo) {
         this.sexo = sexo;
     }
+
+    
 
 }

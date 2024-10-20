@@ -1,11 +1,13 @@
 package br.unitins.tp1.monitores.model;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import java.time.LocalDate;
 
 @Entity
 public class Monitor extends PanacheEntityBase {
@@ -20,20 +22,11 @@ public class Monitor extends PanacheEntityBase {
     private Double tamanho;
     private String taxaAtualizacao;
     private String tempoResposta;
-    private Integer anoLancamento;
+    private LocalDate anoLancamento;
 
-    // @ManyToOne
-   // private Cor cor;
-
-   // @ManyToOne
-    // private Resolucao resolucao;
-
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private Fabricante fabricante;
 
-    // @ManyToOne
-    // private CategoriaMonitor categoria; 
-    
     public Long getId() {
         return id;
     }
@@ -74,22 +67,14 @@ public class Monitor extends PanacheEntityBase {
         this.tamanho = tamanho;
     }
 
-    public Integer getAnoLancamento() {
+    public LocalDate getAnoLancamento() {
         return anoLancamento;
     }
 
-    public void setAnoLancamento(Integer anoLancamento) {
+    public void setAnoLancamento(LocalDate anoLancamento) {
         this.anoLancamento = anoLancamento;
     }
 
-
-    public Fabricante getFabricante() {
-        return fabricante;
-    }
-
-    public void setFabricante(Fabricante fabricante) {
-        this.fabricante = fabricante;
-    }
 
     public String getModelo() {
         return modelo;
@@ -113,6 +98,17 @@ public class Monitor extends PanacheEntityBase {
     public void setTempoResposta(String tempoResposta) {
         this.tempoResposta = tempoResposta;
     }
+
+    public Fabricante getFabricante() {
+        return fabricante;
+    }
+
+    public void setFabricante(Fabricante fabricante) {
+        this.fabricante = fabricante;
+    }
+
+    
+    
 
     
 }
