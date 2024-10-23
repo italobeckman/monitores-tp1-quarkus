@@ -10,7 +10,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 public class ClienteRepository implements PanacheRepository<Cliente> {
     
     public List<Cliente> findByNome(String nome) {
-        return find("SELECT p FROM Cliente p WHERE p.nome LIKE ?1", "%" + nome + "%").list();
+        return find("SELECT c FROM Cliente c WHERE c.nome LIKE ?1", "%" + nome + "%").list();
+    }
+    public Cliente findByCpf(String cpf) {
+        return find("SELECT c FROM Cliente c WHERE c.cpf = ?1",  cpf ).firstResult();
     }
     
 }
