@@ -14,6 +14,7 @@ public interface ClienteService {
 
     List<Cliente> findAll();
 
+    Cliente findByCpf(String cpf);
     Cliente create(ClienteRequestDTO dto);
 
     Cliente update(Long id, ClienteRequestDTO dto);

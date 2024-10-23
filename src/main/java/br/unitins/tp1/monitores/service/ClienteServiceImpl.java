@@ -20,6 +20,10 @@ public class ClienteServiceImpl implements ClienteService {
     public Cliente findById(Long id) {
         return clienteRepository.findById(id);
     }
+    @Override
+    public Cliente findByCpf(String cpf) {
+        return clienteRepository.findByCpf(cpf);
+    }
 
     @Override
     public List<Cliente> findByNome(String nome) {
