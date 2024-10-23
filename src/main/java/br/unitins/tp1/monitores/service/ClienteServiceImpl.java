@@ -51,7 +51,6 @@ public class ClienteServiceImpl implements ClienteService {
     @Transactional
     public Cliente update(Long id, ClienteRequestDTO dto) {
         Cliente cliente = clienteRepository.findById(id);
-
         cliente.setNome(dto.nome());
         cliente.setCpf(dto.cpf());
         cliente.setSexo(Sexo.valueOf(dto.idSexo()));
