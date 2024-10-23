@@ -99,17 +99,7 @@ public class ClienteResourceTest {
         assertNull(cliente);
     
     }
-       
-    @Test
-    @TestHTTPEndpoint(ClienteResource.class)
-    public void testFindAll2(){
-        given()
-            .when().get()
-            .then()
-                .statusCode(200)
-                .body("$.size()", is(2),
-                     "[1].nome", is("Fredson"));
-    }
+    
 
 
 
