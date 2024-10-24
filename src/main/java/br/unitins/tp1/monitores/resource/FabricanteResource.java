@@ -2,10 +2,15 @@ package br.unitins.tp1.monitores.resource;
 
 import java.util.List;
 
+import br.unitins.tp1.monitores.dto.estado.EstadoRequestDTO;
+import br.unitins.tp1.monitores.dto.estado.EstadoResponseDTO;
 import br.unitins.tp1.monitores.dto.fabricante.FabricanteRequestDTO;
+import br.unitins.tp1.monitores.dto.fabricante.FabricanteResponseDTO;
+import br.unitins.tp1.monitores.model.Estado;
 import br.unitins.tp1.monitores.model.Fabricante;
 import br.unitins.tp1.monitores.service.FabricanteService;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -15,6 +20,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 
 @Path("/fabricantes")
 @Produces(MediaType.APPLICATION_JSON)
@@ -26,37 +33,40 @@ public class FabricanteResource {
 
     @GET
     @Path("/{id}")
-    public Fabricante findById(@PathParam("id") Long id) {
-        return fabricanteService.findById(id);
+    public Response findById(@PathParam("id") Long id) {
+        return Response.ok(FabricanteResponseDTO.valueOf(fabricanteService.findById(id))).build();
     }
 
     @GET
     @Path("/search/{nome}")
-    public List<Fabricante> findByNome(@PathParam("nome") String nome) {
-        return fabricanteService.findByNome(nome);
+    public Response findByNome(@PathParam("nome") String nome) {
+        List<Fabricante> fabricante = fabricanteService.findByNome(nome);
+        return Response.ok(fabricante.stream().map(FabricanteResponseDTO::valueOf).toList()).build();
     }
 
     @GET
-    public List<Fabricante> findAll() {
-        return fabricanteService.findAll();
+    public Response findAll() {
+        List<Fabricante> fabricante = fabricanteService.findAll();
+        return Response.ok(fabricante.stream().map(FabricanteResponseDTO::valueOf).toList()).build();
     }
 
     @POST
-    public Fabricante create(FabricanteRequestDTO fabricante) {
-
-        return fabricanteService.create(fabricante);
+    public Response create(@Valid FabricanteRequestDTO fabricante) {
+        return Response.status(Status.CREATED).entity(FabricanteResponseDTO.valueOf(fabricanteService.create(fabricante))).build();
     }
 
     @PUT
     @Path("/{id}")
-    public void update(@PathParam("id") Long id, FabricanteRequestDTO fabricante) {
+    public Response update(@PathParam("id") Long id, @Valid FabricanteRequestDTO fabricante) {
         fabricanteService.update(id, fabricante);
+        return Response.noContent().build();
     }
 
     @DELETE
     @Path("/{id}")
-    public void delete(@PathParam("id") Long id) {
+    public Response delete(@PathParam("id") Long id) {
         fabricanteService.delete(id);
+        return Response.noContent().build();
     }
     
 }
