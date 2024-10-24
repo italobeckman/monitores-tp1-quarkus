@@ -33,7 +33,12 @@ public class TelefoneFabricanteResource {
     public Response findById(@PathParam("id") Long id) {
         return Response.ok(TelefoneFabricanteResponseDTO.valueOf(telefoneFabricanteService.findById(id))).build();
     }
-
+    @GET
+    @Path("/numero/{numero}")
+    public Response findByNumero(@PathParam("numero") String numero) {
+        return Response.ok(TelefoneFabricanteResponseDTO.valueOf(telefoneFabricanteService.findByNumero(numero))).build();
+    }
+    
     @GET
     public Response findAll() {
         List<TelefoneFabricante> telefone = telefoneFabricanteService.findAll();

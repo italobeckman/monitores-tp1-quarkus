@@ -9,8 +9,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class TelefoneFornecedorRepository implements PanacheRepository<TelefoneFornecedor> {
     
-    public List<TelefoneFornecedor> findByNome(String nome) {
-        return find("SELECT f FROM TelefoneFornecedor f WHERE f.nome LIKE ?1", "%" + nome + "%").list();
+    public List<TelefoneFornecedor> findByNumero(String numero) {
+        return find("SELECT f FROM TelefoneFornecedor f WHERE f.numero = ?1", numero).list();
     }
     
 }

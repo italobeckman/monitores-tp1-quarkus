@@ -2,6 +2,7 @@ package br.unitins.tp1.monitores.resource;
 
 import java.util.List;
 
+import br.unitins.tp1.monitores.dto.fabricante.TelefoneFabricanteResponseDTO;
 import br.unitins.tp1.monitores.dto.fornecedor.TelefoneFornecedorRequestDTO;
 import br.unitins.tp1.monitores.dto.fornecedor.TelefoneFornecedorResponseDTO;
 import br.unitins.tp1.monitores.model.TelefoneFornecedor;
@@ -29,11 +30,16 @@ public class TelefoneFornecedorResource {
     public TelefoneFornecedorService telefoneFornecedorService;
 
     @GET
-    @Path("/{id}")
+    @Path("search/{id}")
     public Response findById(@PathParam("id") Long id) {
         return Response.ok(TelefoneFornecedorResponseDTO.valueOf(telefoneFornecedorService.findById(id))).build();
     }
 
+    @GET
+    @Path("/numero/search/{numero}")
+    public Response findByNumero(@PathParam("numero") String numero) {
+        return Response.ok(TelefoneFornecedorResponseDTO.valueOf(telefoneFornecedorService.findByNumero(numero))).build();
+    }
     @GET
     public Response findAll() {
         List<TelefoneFornecedor> telefone = telefoneFornecedorService.findAll();

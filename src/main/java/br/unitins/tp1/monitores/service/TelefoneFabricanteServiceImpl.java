@@ -57,5 +57,13 @@ public class TelefoneFabricanteServiceImpl implements TelefoneFabricanteService 
     public void delete(Long id) {
         telefoneFabricanteRepository.deleteById(id);
     }
+
+    @Override
+    public TelefoneFabricante findByNumero(String string) {
+        return telefoneFabricanteRepository.findByNumero(string).get(0);
+    }
+
+    
+    
     
 }

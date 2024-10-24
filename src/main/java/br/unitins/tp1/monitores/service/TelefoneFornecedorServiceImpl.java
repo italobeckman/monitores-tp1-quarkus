@@ -58,4 +58,8 @@ public class TelefoneFornecedorServiceImpl implements TelefoneFornecedorService 
         telefoneFornecedorRepository.deleteById(id);
     }
     
+    @Override
+    public TelefoneFornecedor findByNumero(String string) {
+        return telefoneFornecedorRepository.findByNumero(string).get(0);
+    }
 }

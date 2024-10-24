@@ -18,4 +18,5 @@ public interface TelefoneFornecedorService {
 
     void delete(Long id); 
     
+    TelefoneFornecedor findByNumero(String string); 
 }
