@@ -16,6 +16,8 @@ public interface TelefoneFabricanteService {
 
     TelefoneFabricante update(Long id, TelefoneFabricanteRequestDTO dto);
 
-    void delete(Long id); 
+    void delete(Long id);
+
+    TelefoneFabricante findByNumero(String string); 
     
 }

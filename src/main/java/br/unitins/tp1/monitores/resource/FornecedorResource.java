@@ -2,11 +2,8 @@ package br.unitins.tp1.monitores.resource;
 
 import java.util.List;
 
-import br.unitins.tp1.monitores.dto.estado.EstadoRequestDTO;
-import br.unitins.tp1.monitores.dto.estado.EstadoResponseDTO;
 import br.unitins.tp1.monitores.dto.fornecedor.FornecedorRequestDTO;
 import br.unitins.tp1.monitores.dto.fornecedor.FornecedorResponseDTO;
-import br.unitins.tp1.monitores.model.Estado;
 import br.unitins.tp1.monitores.model.Fornecedor;
 import br.unitins.tp1.monitores.service.FornecedorService;
 import jakarta.inject.Inject;
