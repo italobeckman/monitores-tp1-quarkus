@@ -42,6 +42,8 @@ insert into Municipio(nome, id_estado) values
 
 
 
+
+
 insert into TelefoneFabricante (codigoArea, numero) values 
 ('63', '999999999'),
 ('62', '888888888'),
@@ -57,4 +59,15 @@ insert into TelefoneFabricante (codigoArea, numero) values
 ('92', '987654321'),
 ('69', '123123123'),
 ('68', '321321321');
+
+insert into Usuario(username, senha, perfil) values ('janio', '0cctg7WgpEz7kC/AzVC+KX+bZLPXDtgJDqWWZWnmzHH+7Na2YVxYYSFPxcf7ImAjqfNckx0aT4n5qKM7WEoeEQ==', 1);
+insert into Usuario(username, senha, perfil) values ('carloshenrique', '0cctg7WgpEz7kC/AzVC+KX+bZLPXDtgJDqWWZWnmzHH+7Na2YVxYYSFPxcf7ImAjqfNckx0aT4n5qKM7WEoeEQ==', 2);
+
+-- senha 123456
+-- 0cctg7WgpEz7kC/AzVC+KX+bZLPXDtgJDqWWZWnmzHH+7Na2YVxYYSFPxcf7ImAjqfNckx0aT4n5qKM7WEoeEQ==
+
+insert into Usuario(username, perfil, senha) values (
+'admin', '1', '0cctg7WgpEz7kC/AzVC+KX+bZLPXDtgJDqWWZWnmzHH+7Na2YVxYYSFPxcf7ImAjqfNckx0aT4n5qKM7WEoeEQ=='
+);
+
 
