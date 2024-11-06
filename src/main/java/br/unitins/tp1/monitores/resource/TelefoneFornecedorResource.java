@@ -2,7 +2,6 @@ package br.unitins.tp1.monitores.resource;
 
 import java.util.List;
 
-import br.unitins.tp1.monitores.dto.fabricante.TelefoneFabricanteResponseDTO;
 import br.unitins.tp1.monitores.dto.fornecedor.TelefoneFornecedorRequestDTO;
 import br.unitins.tp1.monitores.dto.fornecedor.TelefoneFornecedorResponseDTO;
 import br.unitins.tp1.monitores.model.TelefoneFornecedor;
