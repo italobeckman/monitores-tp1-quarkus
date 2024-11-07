@@ -6,6 +6,7 @@ import br.unitins.tp1.monitores.dto.estado.EstadoRequestDTO;
 import br.unitins.tp1.monitores.dto.estado.EstadoResponseDTO;
 import br.unitins.tp1.monitores.model.Estado;
 import br.unitins.tp1.monitores.service.EstadoService;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -29,6 +30,7 @@ public class EstadoResource {
 
     @GET
     @Path("/{id}")
+    @RolesAllowed({"Adm", "User"})
     public Response findById(@PathParam("id") Long id) {
         return Response.ok(EstadoResponseDTO.valueOf(estadoService.findById(id))).build();
     }

@@ -41,7 +41,7 @@ public class AuthResource {
                 .entity("Usuario não encontrado").build();
         } 
         return Response.ok()
-            .header("Authorization", jwtService.generateJwt(UsuarioResponseDTO.valueOf(null)))
+            .header("Authorization", jwtService.generateJwt(UsuarioResponseDTO.valueOf(usuario)))
             .build();
         
     }
