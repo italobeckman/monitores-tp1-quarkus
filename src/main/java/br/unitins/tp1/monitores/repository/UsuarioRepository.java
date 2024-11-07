@@ -8,7 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 public class UsuarioRepository implements PanacheRepository<Usuario> {
     
     public Usuario findByUsername(String username, String senha) {
-        return find("SELECT u FROM Usuario u WHERE u.username LIKE ?1 and u.senha = ?2", username, senha).firstResult();
+        return find("SELECT u FROM Usuario u WHERE u.username = ?1 AND u.senha = ?2", username, senha).firstResult();    
     }
     
 }
