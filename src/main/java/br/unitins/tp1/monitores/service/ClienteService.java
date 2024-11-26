@@ -19,6 +19,8 @@ public interface ClienteService {
 
     Cliente update(Long id, ClienteRequestDTO dto);
 
-    void delete(Long id); 
+    void delete(Long id);
+    
+    Cliente updateNomeImagem(Long id, String nomeImagem);
     
 }

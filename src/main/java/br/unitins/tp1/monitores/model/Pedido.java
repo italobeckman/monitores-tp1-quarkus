@@ -23,6 +23,7 @@ public class Pedido extends DefaultEntity {
     @JoinColumn(name = "id_pedido")
     private List<ItemPedido> listaItemPedido;
     private Double valorTotal;
+    
 
     public String getCodigoPedido() {
         return codigoPedido;
@@ -54,6 +55,14 @@ public class Pedido extends DefaultEntity {
 
     public void setValorTotal(Double valorTotal) {
         this.valorTotal = valorTotal;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
 
 }

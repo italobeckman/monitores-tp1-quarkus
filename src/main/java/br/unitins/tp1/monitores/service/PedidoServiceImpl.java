@@ -1,8 +1,13 @@
 package br.unitins.tp1.monitores.service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
+import br.unitins.tp1.monitores.dto.itemPedido.ItemPedidoRequestDTO;
 import br.unitins.tp1.monitores.dto.pedido.PedidoRequestDTO;
+import br.unitins.tp1.monitores.model.ItemPedido;
+import br.unitins.tp1.monitores.model.Lote;
 import br.unitins.tp1.monitores.model.Pedido;
 import br.unitins.tp1.monitores.repository.PedidoRepository;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -16,7 +21,10 @@ public class PedidoServiceImpl implements PedidoService {
     public PedidoRepository pedidoRepository;
 
     @Inject
-    public EstadoService estadoService;
+    public UsuarioService usuarioService;
+
+    @Inject
+    public LoteService loteService;
 
     @Override
     public Pedido findById(Long id) {
@@ -37,21 +45,32 @@ public class PedidoServiceImpl implements PedidoService {
     //     return null;
     // }
 
-    @Override
+     @Override
     @Transactional
-    public Pedido create(PedidoRequestDTO dto) {
-        // // buscando o estado a partir de um id do municipio
-        // Pedido municipio = new Pedido();
-        // municipio.setEstado(estadoService.findById(dto.idEstado()));
-        // municipio.setNome(dto.nome());
+    public Pedido create(PedidoRequestDTO dto, String username) {
+        Pedido pedido = new Pedido();
+        pedido.setData(LocalDateTime.now());
+        pedido.setUsuario(usuarioService.findByUsername(username));
+        // eh importante validar se o total enviado via dto eh o mesmo gerado pelos produtos
+        pedido.setValorTotal(dto.valorTotal());
 
-        // //salvando o municipio
-        // pedidoRepository.persist(municipio);
+        pedido.setListaItemPedido(new ArrayList<ItemPedido>());
+
+        for (ItemPedidoRequestDTO itemDTO : dto.listaItemPedido()) {
+            ItemPedido item = new ItemPedido();
+            Lote lote = loteService.findByIdMonitor(itemDTO.idProduto());
+            item.setLote(lote);
+            // eh importante validar o preco
+            item.setPreco(itemDTO.preco());
+            // eh importante validar se tem estoque
+            item.setQuantidade(itemDTO.quantidade());
+
+            pedido.getListaItemPedido().add(item);
+        }
+
+        pedidoRepository.persist(pedido);
         
-        // return municipio;
-
-
-        return null;
+        return pedido;
     }
     
 }

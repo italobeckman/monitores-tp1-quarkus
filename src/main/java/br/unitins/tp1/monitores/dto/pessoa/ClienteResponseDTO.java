@@ -7,6 +7,7 @@ public record ClienteResponseDTO(
     Long id, 
     String nome,
     String cpf,
+    String nomeImagem,
     Sexo sexo
     ) {
 
@@ -16,6 +17,7 @@ public record ClienteResponseDTO(
             cliente.getId(), 
             cliente.getNome(),
             cliente.getCpf(),
+            cliente.getNomeImagem(),
             cliente.getSexo());
 
     };

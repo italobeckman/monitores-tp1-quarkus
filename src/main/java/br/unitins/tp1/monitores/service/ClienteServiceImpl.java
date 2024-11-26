@@ -63,5 +63,12 @@ public class ClienteServiceImpl implements ClienteService {
     public void delete(Long id) {
         clienteRepository.deleteById(id);
     }
-    
+    @Override
+    @Transactional
+    public Cliente updateNomeImagem(Long id, String nomeImagem) {
+        Cliente cliente = clienteRepository.findById(id);
+        cliente.setNomeImagem(nomeImagem);
+
+        return cliente;
+    }
 }
