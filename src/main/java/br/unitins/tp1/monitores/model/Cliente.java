@@ -8,7 +8,9 @@ public class Cliente extends DefaultEntity {
     private String nome;
     private String cpf;
     private Sexo sexo;
+    private String nomeImagem;
 
+    
     public String getCpf() {
         return cpf;
     }
@@ -31,6 +33,14 @@ public class Cliente extends DefaultEntity {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public String getNomeImagem() {
+        return nomeImagem;
+    }
+
+    public void setNomeImagem(String nomeImagem) {
+        this.nomeImagem = nomeImagem;
     }
 
     

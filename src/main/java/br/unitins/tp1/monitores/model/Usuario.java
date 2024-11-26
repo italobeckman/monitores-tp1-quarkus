@@ -1,9 +1,11 @@
 package br.unitins.tp1.monitores.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 
 @Entity
 public class Usuario extends DefaultEntity {
+        @Column(unique = true)
         private String username;
         private Perfil perfil;
         private String senha;

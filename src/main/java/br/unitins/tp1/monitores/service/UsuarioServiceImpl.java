@@ -20,7 +20,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
     @Override
     public Usuario findByUsernameAndSenha(String username, String senha) {
-        return usuarioRepository.findByUsername(username, senha);
+        return usuarioRepository.findByUsernameAndSenha(username, senha);
     }
 
 
@@ -60,6 +60,10 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Transactional
     public void delete(Long id) {
         usuarioRepository.deleteById(id);
+    }
+    @Override
+    public Usuario findByUsername(String username) {
+        return usuarioRepository.findByUsername(username);
     }
     
 }

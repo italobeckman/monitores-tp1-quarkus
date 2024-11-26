@@ -12,7 +12,7 @@ public interface PedidoService {
 
     List<Pedido> findByUsername(String username);
 
-    Pedido create(PedidoRequestDTO dto);
+    Pedido create(PedidoRequestDTO dto, String username);
 
     // implementar patch's
     // void delete(Long id); 

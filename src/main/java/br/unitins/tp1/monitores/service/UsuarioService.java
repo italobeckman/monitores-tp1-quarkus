@@ -8,6 +8,8 @@ import br.unitins.tp1.monitores.model.Usuario;
 public interface UsuarioService {
 
     Usuario findById(Long id);
+    Usuario findByUsername(String username);
+
     Usuario findByUsernameAndSenha(String username, String senha);
 
     List<Usuario> findByNome(String nome);

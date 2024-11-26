@@ -1,13 +1,20 @@
 package br.unitins.tp1.monitores.resource;
 
+import java.io.IOException;
+
+import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
+
 import br.unitins.tp1.monitores.dto.pessoa.ClienteRequestDTO;
 import br.unitins.tp1.monitores.dto.pessoa.ClienteResponseDTO;
 import br.unitins.tp1.monitores.service.ClienteService;
+import br.unitins.tp1.monitores.service.FileService;
+import br.unitins.tp1.monitores.form.ClienteImageForm;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
@@ -15,6 +22,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.ResponseBuilder;
 import jakarta.ws.rs.core.Response.Status;
 
 @Path("/clientes")
@@ -25,6 +33,7 @@ public class ClienteResource {
     @Inject
     public ClienteService clienteService;
 
+    @Inject FileService clienteFileService;
     @GET
     @Path("/{id}")
     public Response findById(@PathParam("id") Long id) {
@@ -69,5 +78,27 @@ public class ClienteResource {
         clienteService.delete(id);
         return Response.noContent().build();
     }
-    
+
+    @PATCH
+    @Path("/{id}/upload/imagem")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Response uploadImage(@PathParam("id") Long id, @MultipartForm ClienteImageForm form) {
+        try {
+            String nomeImagem = clienteFileService.save(form.getNomeImagem(), form.getImagem());
+
+            clienteService.updateNomeImagem(id, nomeImagem);
+        } catch (IOException e) {
+            Response.status(500).build();
+    }
+        return Response.noContent().build();
+    }
+    // lembrar prof excecção
+    @PATCH
+    @Path("/download/imagem/{nomeImagem}")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response downloadImage(@PathParam("nomeImagem") String nomeImagem){
+        ResponseBuilder response = Response.ok(clienteFileService.find(nomeImagem));
+        response.header("Content-Disposition", "attachment; filename=" + nomeImagem);
+        return response.build();
+    }
 }
