@@ -1,6 +1,9 @@
 package br.unitins.tp1.monitores.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Cliente extends DefaultEntity {
@@ -9,6 +12,10 @@ public class Cliente extends DefaultEntity {
     private String cpf;
     private Sexo sexo;
     private String nomeImagem;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_endereco_user")
+    private EnderecoUser enderecoUser;
 
     
     public String getCpf() {

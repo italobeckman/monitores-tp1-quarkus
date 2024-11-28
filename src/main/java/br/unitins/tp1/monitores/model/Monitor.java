@@ -2,38 +2,41 @@ package br.unitins.tp1.monitores.model;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDate;
 
 @Entity
 public class Monitor extends DefaultEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+   
     private String nome;
     private String marca;
     private String modelo;
     private Double preco;
-    private Double tamanho;
     private String taxaAtualizacao;
     private String tempoResposta;
     private LocalDate anoLancamento;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_tamanho_monitor")
+    private TamanhoMonitor tamanhoMonitor;
+
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_fabricante")
     private Fabricante fabricante;
+    
 
-    public Long getId() {
-        return id;
+
+    
+    public TamanhoMonitor getTamanhoMonitor() {
+        return tamanhoMonitor;
     }
-
-    public void setId(Long id) {
-        this.id = id;
+    
+    public void setTamanhoMonitor(TamanhoMonitor tamanhoMonitor) {
+        this.tamanhoMonitor = tamanhoMonitor;
     }
-
+    
     public String getNome() {
         return nome;
     }
@@ -56,14 +59,6 @@ public class Monitor extends DefaultEntity {
 
     public void setPreco(Double preco) {
         this.preco = preco;
-    }
-
-    public Double getTamanho() {
-        return tamanho;
-    }
-
-    public void setTamanho(Double tamanho) {
-        this.tamanho = tamanho;
     }
 
     public LocalDate getAnoLancamento() {

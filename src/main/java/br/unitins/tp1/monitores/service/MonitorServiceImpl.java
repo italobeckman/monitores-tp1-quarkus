@@ -3,7 +3,6 @@ package br.unitins.tp1.monitores.service;
 import java.util.List;
 
 import br.unitins.tp1.monitores.dto.monitor.MonitorRequestDTO;
-import br.unitins.tp1.monitores.model.Fabricante;
 import br.unitins.tp1.monitores.model.Monitor;
 import br.unitins.tp1.monitores.repository.MonitorRepository;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -17,6 +16,9 @@ public class MonitorServiceImpl implements MonitorService {
 
     @Inject
     public FabricanteService fabricanteService;
+
+    @Inject
+    public TamanhoMonitorService tamanhoMonitorService;
 
     @Override
     @Transactional
@@ -67,8 +69,11 @@ public class MonitorServiceImpl implements MonitorService {
         monitor.setTaxaAtualizacao(dto.taxaAtualizacao());
         monitor.setTempoResposta(dto.tempoResposta());
         monitor.setAnoLancamento(dto.anoLancamento());
-        Fabricante fabricante = fabricanteService.findById(dto.fabricante());
-        fabricante.getListaMonitor().add(monitor);
+
+        
+        monitor.setFabricante(fabricanteService.findById(dto.idFabricante()));
+        monitor.setTamanhoMonitor(tamanhoMonitorService.findById(dto.idTamanhoMonitor()));
+
         monitorRepository.persist(monitor);
         return monitor;
     }

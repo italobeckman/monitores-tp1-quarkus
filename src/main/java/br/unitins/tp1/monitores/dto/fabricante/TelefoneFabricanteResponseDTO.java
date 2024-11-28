@@ -10,6 +10,10 @@ public record TelefoneFabricanteResponseDTO(
     
 
     public static TelefoneFabricanteResponseDTO valueOf(TelefoneFabricante Telfabricante) {
+        if (Telfabricante == null) {
+            return null; // 
+        }
+        
         return new TelefoneFabricanteResponseDTO(
             Telfabricante.getId(), 
             Telfabricante.getCodigoArea(),

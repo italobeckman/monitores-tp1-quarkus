@@ -23,6 +23,10 @@ public class Pedido extends DefaultEntity {
     @JoinColumn(name = "id_pedido")
     private List<ItemPedido> listaItemPedido;
     private Double valorTotal;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_endereco_pedido")
+    private EnderecoPedido enderecoPedido;
     
 
     public String getCodigoPedido() {
@@ -63,6 +67,14 @@ public class Pedido extends DefaultEntity {
 
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
+    }
+
+    public EnderecoPedido getEnderecoPedido() {
+        return enderecoPedido;
+    }
+
+    public void setEnderecoPedido(EnderecoPedido enderecoPedido) {
+        this.enderecoPedido = enderecoPedido;
     }
 
 }

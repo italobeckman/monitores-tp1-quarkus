@@ -3,34 +3,18 @@ package br.unitins.tp1.monitores.model;
 import java.util.List;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 @Entity
-public class Fabricante {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Fabricante extends DefaultEntity {
     private String nome;
     private String cnpj;
     private String email;
-
-    @OneToMany(mappedBy = "fabricante", cascade = CascadeType.ALL)
-    private List<Monitor> listaMonitor;
     
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "fabricante_id")
     private List<TelefoneFabricante> listaTelefone;
-    
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getNome() {
         return nome;
@@ -70,14 +54,6 @@ public class Fabricante {
 
     public void setListaTelefone(List<TelefoneFabricante> listaTelefone) {
         this.listaTelefone = listaTelefone;
-    }
-
-    public List<Monitor> getListaMonitor() {
-        return listaMonitor;
-    }
-
-    public void setListaMonitor(List<Monitor> listaMonitor) {
-        this.listaMonitor = listaMonitor;
     }
     
 }

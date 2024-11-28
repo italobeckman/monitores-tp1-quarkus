@@ -2,6 +2,8 @@ package br.unitins.tp1.monitores.resource;
 
 import java.util.List;
 
+import org.jboss.logging.Logger;
+
 import br.unitins.tp1.monitores.dto.estado.EstadoRequestDTO;
 import br.unitins.tp1.monitores.dto.estado.EstadoResponseDTO;
 import br.unitins.tp1.monitores.model.Estado;
@@ -25,6 +27,9 @@ import jakarta.ws.rs.core.Response.Status;
 @Consumes(MediaType.APPLICATION_JSON)
 public class EstadoResource {
 
+
+
+    private static final Logger LOG = Logger.getLogger(EstadoResource.class);
     @Inject
     public EstadoService estadoService;
 
@@ -32,6 +37,7 @@ public class EstadoResource {
     @Path("/{id}")
     @RolesAllowed({"Adm", "User"})
     public Response findById(@PathParam("id") Long id) {
+        LOG.info("Execucao do metodo findById, Id: "+ id);
         return Response.ok(EstadoResponseDTO.valueOf(estadoService.findById(id))).build();
     }
 
