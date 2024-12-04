@@ -3,9 +3,13 @@ package br.unitins.tp1.monitores.resource;
 import java.util.List;
 
 import org.eclipse.microprofile.jwt.JsonWebToken;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import br.unitins.tp1.monitores.dto.pagamento.CartaoDTO;
+import br.unitins.tp1.monitores.dto.pagamento.CartaoResponseDTO;
+import br.unitins.tp1.monitores.dto.pagamento.BoletoResponseDTO;
+import br.unitins.tp1.monitores.dto.pagamento.PixResponseDTO;
 import br.unitins.tp1.monitores.dto.pedido.PedidoDTO;
 import br.unitins.tp1.monitores.dto.pedido.PedidoResponseDTO;
 import br.unitins.tp1.monitores.dto.pedido.StatusPatchDTO;
@@ -16,7 +20,6 @@ import br.unitins.tp1.monitores.service.user.UsuarioService;
 import br.unitins.tp1.monitores.validation.ValidationException;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
-
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -36,7 +39,7 @@ import jakarta.ws.rs.core.Response.Status;
 @Produces(MediaType.APPLICATION_JSON)
 public class PedidoResource {
 
-    private static final Logger LOG = Logger.getLogger(PedidoResource.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(PedidoResource.class);
 
     @Inject
     PedidoService pedidoService;
@@ -53,32 +56,27 @@ public class PedidoResource {
     @POST // USER == CLIENTE
     @RolesAllowed({ "User" }) // Permissões para criação de pedidos
     public Response create(@Valid PedidoDTO pedidoDTO, @Context SecurityContext securityContext) {
-        // Obtém o username do JWT
         String username = jwt.getSubject();
-        LOG.info("Pedido gerado pelo cliente: " + username);
+        LOG.info("Pedido gerado pelo cliente: {}", username);
 
-        // Verifica se o usuário é um administrador
         if (securityContext.isUserInRole("Adm")) {
-            // Se for Adm, retorna uma resposta com FORBIDDEN
+            LOG.warn("Usuário 'Adm' tentou efetuar um pedido: {}", username);
             return Response.status(Response.Status.FORBIDDEN)
                     .entity("Usuários 'Adm' não podem efetuar pedidos.")
                     .build();
         }
 
-        // Busca o usuário e o cliente associados ao username
         Cliente cliente = clienteService.findByUsername(username);
 
-        // Verifica se o cliente está cadastrado completamente
         if (cliente == null || !cliente.isCadastroCompleto()) {
-            // Retorna uma resposta com BAD_REQUEST e uma mensagem explicativa
+            LOG.warn("Cadastro de cliente incompleto para o usuário: {}", username);
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("Cadastro de cliente incompleto. Por favor, complete seu cadastro.")
                     .build();
         }
 
-        // Criação do pedido
         PedidoResponseDTO createdPedido = pedidoService.create(pedidoDTO, username);
-
+        LOG.info("Pedido criado com sucesso para o cliente: {}", username);
         return Response.status(Response.Status.CREATED).entity(createdPedido).build();
     }
 
@@ -86,55 +84,48 @@ public class PedidoResource {
     @Path("/meus-pedidos")
     @RolesAllowed({ "User" })
     public Response getMeusPedidos(@Context SecurityContext securityContext) {
-        String username = jwt.getSubject(); // Extrai o username do token JWT
-        if (username == null) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Username não encontrado no token JWT.")
-                    .build();
-        }
-
+        String username = jwt.getSubject();
+        LOG.info("Buscando pedidos para o usuário: {}", username);
         List<PedidoResponseDTO> pedidos = pedidoService.findByUsername(username);
+        LOG.info("Encontrados {} pedidos para o usuário: {}", pedidos.size(), username);
         return Response.ok(pedidos).build();
     }
 
     @GET
     @Path("/{id}")
-    @RolesAllowed({ "User", "Funcionario" }) // Single Order - User/Funcionario
+    @RolesAllowed({ "Adm" })
     public Response findById(@PathParam("id") Long id, @Context SecurityContext securityContext) {
-
+        LOG.info("Buscando pedido com ID: {}", id);
         PedidoResponseDTO pedido = pedidoService.findById(id);
-
         if (pedido == null) {
-            return Response.status(Status.NOT_FOUND).build();
+            LOG.warn("Pedido com ID: {} não encontrado", id);
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
-
-        if (securityContext.isUserInRole("User") && !pedido.cliente().id().equals(jwt.getClaim("id"))) {
-            return Response.status(Status.FORBIDDEN).build();
-        }
-
+        LOG.info("Pedido com ID: {} encontrado", id);
         return Response.ok(pedido).build();
     }
 
     @PATCH
     @Path("/{id}/status")
-    @RolesAllowed({ "Adm", "Funcionario" }) // Status Update - Adm/Funcionario
+    @RolesAllowed({ "Adm" })
     public Response updateStatusPedido(@PathParam("id") Long idPedido, @Valid StatusPatchDTO status) {
-        try {
-            pedidoService.updateStatusPedido(idPedido, status.idStatus());
-            return Response.status(Status.NO_CONTENT).build();
-        } catch (ValidationException e) {
-            return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
-        }
+        LOG.info("Atualizando status do pedido com ID: {} para {}", idPedido);
+        pedidoService.updateStatusPedido(idPedido, status.idStatus());
+        LOG.info("Status do pedido com ID: {} atualizado com sucesso", idPedido);
+        return Response.noContent().build();
     }
 
     @POST
     @Path("/{id}/pagamento/cartao")
     @RolesAllowed({ "User" })
     public Response pagarComCartao(@PathParam("id") Long idPedido, @Valid CartaoDTO cartaoDTO) {
+        LOG.info("Processando pagamento com cartão para o pedido ID: {}", idPedido);
         try {
-            pedidoService.registrarPagamentoCartao(idPedido, cartaoDTO);
-            return Response.status(Status.NO_CONTENT).build();
+            CartaoResponseDTO cartaoResponse = pedidoService.registrarPagamentoCartao(idPedido, cartaoDTO);
+            LOG.info("Pagamento com cartão processado com sucesso para o pedido ID: {}", idPedido);
+            return Response.ok(cartaoResponse).build();
         } catch (ValidationException e) {
+            LOG.error("Erro de validação ao processar pagamento com cartão para o pedido ID: {}", idPedido, e);
             return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
     }
@@ -142,11 +133,14 @@ public class PedidoResource {
     @POST
     @Path("/{id}/pagamento/pix")
     @RolesAllowed({ "User" })
-    public Response pagarComPix(@PathParam("id") Long idPedido, long idPix) { // PixDTO precisa ser criado
+    public Response pagarComPix(@PathParam("id") Long idPedido, long idPix) {
+        LOG.info("Processando pagamento com PIX para o pedido ID: {}", idPedido);
         try {
-            pedidoService.registrarPagamentoPix(idPedido, idPix); // Implemente este método no PedidoService
-            return Response.status(Status.NO_CONTENT).build();
+            PixResponseDTO pixResponse = pedidoService.registrarPagamentoPix(idPedido, idPix);
+            LOG.info("Pagamento com PIX processado com sucesso para o pedido ID: {}", idPedido);
+            return Response.ok(pixResponse).build();
         } catch (ValidationException e) {
+            LOG.error("Erro de validação ao processar pagamento com PIX para o pedido ID: {}", idPedido, e);
             return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
     }
@@ -154,11 +148,14 @@ public class PedidoResource {
     @POST
     @Path("/{id}/pagamento/boleto")
     @RolesAllowed({ "User" })
-    public Response pagarComBoleto(@PathParam("id") Long idPedido, Long idBoleto) { // BoletoDTO precisa ser criado
+    public Response pagarComBoleto(@PathParam("id") Long idPedido, Long idBoleto) {
+        LOG.info("Processando pagamento com boleto para o pedido ID: {}", idPedido);
         try {
-            pedidoService.registrarPagamentoBoleto(idPedido, idBoleto); // Implemente este método no PedidoService
-            return Response.status(Status.NO_CONTENT).build();
+            BoletoResponseDTO boletoResponse = pedidoService.registrarPagamentoBoleto(idPedido, idBoleto);
+            LOG.info("Pagamento com boleto processado com sucesso para o pedido ID: {}", idPedido);
+            return Response.ok(boletoResponse).build();
         } catch (ValidationException e) {
+            LOG.error("Erro de validação ao processar pagamento com boleto para o pedido ID: {}", idPedido, e);
             return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
     }
@@ -167,26 +164,29 @@ public class PedidoResource {
     @Path("/{id}/pagamento/pix")
     @RolesAllowed({ "User" })
     public Response gerarPix(@PathParam("id") Long idPedido, @Context SecurityContext securityContext) {
+        LOG.info("Gerando informações de PIX para o pedido ID: {}", idPedido);
         try {
-            return Response.ok(pedidoService.gerarInformacoesPix(idPedido)).build();
-
+            PixResponseDTO pixResponse = pedidoService.gerarInformacoesPix(idPedido);
+            LOG.info("Informações de PIX geradas com sucesso para o pedido ID: {}", idPedido);
+            return Response.ok(pixResponse).build();
         } catch (ValidationException e) {
+            LOG.error("Erro ao gerar informações de PIX para o pedido ID: {}", idPedido, e);
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-
     }
 
     @GET
     @Path("/{id}/pagamento/boleto")
     @RolesAllowed({ "User" })
     public Response gerarBoleto(@PathParam("id") Long idPedido, @Context SecurityContext securityContext) {
+        LOG.info("Gerando informações de boleto para o pedido ID: {}", idPedido);
         try {
-            return Response.ok(pedidoService.gerarInformacoesBoleto(idPedido)).build();
-
+            BoletoResponseDTO boletoResponse = pedidoService.gerarInformacoesBoleto(idPedido);
+            LOG.info("Informações de boleto geradas com sucesso para o pedido ID: {}", idPedido);
+            return Response.ok(boletoResponse).build();
         } catch (ValidationException e) {
+            LOG.error("Erro ao gerar informações de boleto para o pedido ID: {}", idPedido, e);
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-
     }
-
 }

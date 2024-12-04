@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import br.unitins.tp1.monitores.dto.pessoa.FuncionarioRequestDTO;
 import br.unitins.tp1.monitores.dto.pessoa.FuncionarioResponseDTO;
 import br.unitins.tp1.monitores.service.FuncionarioService;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -31,7 +32,7 @@ public class FuncionarioResource {
 
     @Inject
     public FuncionarioService funcionarioService;
-
+    @RolesAllowed({ "Adm" })
     @GET
     @Path("/{id}")
     public Response findById(@PathParam("id") Long id) {
@@ -40,7 +41,7 @@ public class FuncionarioResource {
         logger.info("Funcionario encontrado: {}", response.getEntity());
         return response;
     }
-
+    @RolesAllowed({ "Adm" })
     @GET
     @Path("/search/{nome}")
     public Response findByNome(@PathParam("nome") String nome) {
@@ -49,8 +50,8 @@ public class FuncionarioResource {
                 .ok(funcionarioService.findByNome(nome).stream().map(o -> FuncionarioResponseDTO.valueOf(o)).toList()).build();
         logger.info("Funcionarios encontrados: {}", response.getEntity());
         return response;
-    }
-
+    }   
+    @RolesAllowed({ "Adm" })
     @GET
     public Response findAll() {
         logger.info("Buscando todos os funcionarios");
@@ -59,7 +60,7 @@ public class FuncionarioResource {
         logger.info("Total de funcionarios encontrados: ", ((List<?>) response.getEntity()).size());
         return response;
     }
-
+    @RolesAllowed({ "Adm" })
     @POST
     public Response create(@Valid FuncionarioRequestDTO dto) {
         logger.info("Criando novo funcionario: {}", dto);
@@ -68,7 +69,7 @@ public class FuncionarioResource {
         logger.info("Funcionario criado: {}", response.getEntity());
         return response;
     }
-
+    @RolesAllowed({ "Adm" })
     @PUT
     @Path("/{id}")
     public Response update(@PathParam("id") Long id, @Valid FuncionarioRequestDTO dto) {
@@ -77,7 +78,7 @@ public class FuncionarioResource {
         logger.info("Funcionario com ID: {} atualizado com sucesso", id);
         return Response.noContent().build();
     }
-
+    @RolesAllowed({ "Adm" })
     @DELETE
     @Path("/{id}")
     public Response delete(@PathParam("id") Long id) {

@@ -12,6 +12,7 @@ import br.unitins.tp1.monitores.dto.pessoa.ClienteResponseDTO;
 import br.unitins.tp1.monitores.form.ImageForm;
 import br.unitins.tp1.monitores.service.ClienteFileServiceImpl;
 import br.unitins.tp1.monitores.service.ClienteService;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -38,18 +39,18 @@ public class ClienteResource {
 
     @Inject
     ClienteFileServiceImpl clienteFileService;
-
     @GET
-    @Path("/{id}")
+    @RolesAllowed({ "Adm" })
+    @Path("/search/{id}")
     public Response findById(@PathParam("id") Long id) {
         logger.info("Buscando cliente com ID: ", id);
         Response response = Response.ok(ClienteResponseDTO.valueOf(clienteService.findById(id))).build();
         logger.info("Cliente encontrado: {}", response.getEntity());
         return response;
     }
-
+    @RolesAllowed({ "Adm" })
     @GET
-    @Path("/cliente/search/{nome}")
+    @Path("/search/{nome}")
     public Response findByUsername(@PathParam("nome") String nome) {
         logger.info("Buscando cliente com nome: ", nome);
         Response response = Response
@@ -58,6 +59,7 @@ public class ClienteResource {
         return response;
     }
 
+    @RolesAllowed({ "Adm" })
     @GET
     public Response findAll() {
         logger.info("Buscando todos os clientes");
@@ -66,7 +68,7 @@ public class ClienteResource {
         logger.info("Total de clientes encontrados: ", ((List<?>) response.getEntity()).size());
         return response;
     }
-
+    @RolesAllowed({ "Adm" })
     @PUT
     @Path("/{id}")
     public Response update(@PathParam("id") Long id, @Valid ClienteRequestDTO dto) {
@@ -75,7 +77,7 @@ public class ClienteResource {
         logger.info("Cliente com ID: {} atualizado com sucesso", id);
         return Response.noContent().build();
     }
-
+    @RolesAllowed({ "Adm" })
     @DELETE
     @Path("/{id}")
     public Response delete(@PathParam("id") Long id) {
@@ -84,7 +86,7 @@ public class ClienteResource {
         logger.info("Cliente com ID: {} deletado com sucesso", id);
         return Response.noContent().build();
     }
-
+    @RolesAllowed({ "Adm","User" })
     @PATCH
     @Path("/{id}/upload/imagem")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -100,7 +102,7 @@ public class ClienteResource {
         }
         return Response.noContent().build();
     }
-
+    @RolesAllowed({ "Adm","User" })
     @PATCH
     @Path("/download/imagem/{nomeImagem}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)

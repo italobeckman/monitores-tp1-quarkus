@@ -25,10 +25,13 @@ public class LoteServiceImpl implements LoteService {
     }
 
     @Override
+    public Lote findByIdMonitorLote(Long idMonitor) {
+        return loteRepository.findByIdMonitorLote(idMonitor);
+    }
+    @Override
     public Lote findByIdMonitor(Long idMonitor) {
         return loteRepository.findByIdMonitor(idMonitor);
     }
-
     @Override
     public Lote findByCodigo(String codigo) {
         return loteRepository.findByCodigo(codigo);

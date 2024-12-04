@@ -27,50 +27,86 @@ import jakarta.ws.rs.core.Response.Status;
 @Consumes(MediaType.APPLICATION_JSON)
 public class EstadoResource {
 
-
-
     private static final Logger LOG = Logger.getLogger(EstadoResource.class);
+
     @Inject
     public EstadoService estadoService;
-
+    
     @GET
-    @Path("/{id}")
-    @RolesAllowed({"Adm", "User"})
+    @Path("/search/{id}")
+    @RolesAllowed({"Adm"})
     public Response findById(@PathParam("id") Long id) {
-        LOG.info("Execucao do metodo findById, Id: "+ id);
-        return Response.ok(EstadoResponseDTO.valueOf(estadoService.findById(id))).build();
+        LOG.info("Buscando estado com ID: " + id);
+        Estado estado = estadoService.findById(id);
+        if (estado == null) {
+            LOG.warn("Estado com ID " + id + " não encontrado.");
+            return Response.status(Status.NOT_FOUND).build();
+        }
+        LOG.info("Estado com ID " + id + " encontrado com sucesso.");
+        return Response.ok(EstadoResponseDTO.valueOf(estado)).build();
     }
-
+    @RolesAllowed({ "Adm" })
     @GET
     @Path("/search/{nome}")
     public Response findByNome(@PathParam("nome") String nome) {
+        LOG.info("Buscando estados com nome: " + nome);
         List<Estado> estados = estadoService.findByNome(nome);
+        LOG.info("Encontrados " + estados.size() + " estados com nome: " + nome);
         return Response.ok(estados.stream().map(EstadoResponseDTO::valueOf).toList()).build();
     }
-
+    @RolesAllowed({ "Adm" })
     @GET
     public Response findAll() {
+        LOG.info("Buscando todos os estados.");
         List<Estado> estados = estadoService.findAll();
+        LOG.info("Encontrados " + estados.size() + " estados.");
         return Response.ok(estados.stream().map(EstadoResponseDTO::valueOf).toList()).build();
     }
-
+    @RolesAllowed({ "Adm" })
     @POST
     public Response create(EstadoRequestDTO estado) {
-        return Response.status(Status.CREATED).entity(EstadoResponseDTO.valueOf(estadoService.create(estado))).build();
-    }
+        LOG.info("Criando novo estado: " + estado);
+        Estado created = estadoService.create(estado);
 
+        if (created == null) {
+            LOG.error("Erro ao criar o estado: " + estado + ".");
+            return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+        }
+        
+        LOG.info("Estado criado com sucesso: " + estado);
+
+        return Response.status(Status.CREATED).entity(EstadoResponseDTO.valueOf(created)).build();
+
+    }
+    @RolesAllowed({ "Adm" })
     @PUT
     @Path("/{id}")
     public Response update(@PathParam("id") Long id, EstadoRequestDTO estado) {
-        estadoService.update(id, estado);
-        return Response.noContent().build();
-    }
+        LOG.info("Atualizando estado com ID: " + id + ", com dados: " + estado);
+        try {
+            estadoService.update(id, estado);
+            LOG.info("Estado com ID: " + id + " atualizado com sucesso.");
+            return Response.noContent().build();
+        } catch (Exception e) {
+            LOG.error("Erro ao tentar atualizar o estado com id" + id + ": " + e.getMessage());
+            return Response.serverError().entity("Sistema temporariamente indisponível.").build();
+        }
 
+    }
+    @RolesAllowed({ "Adm" })
     @DELETE
     @Path("/{id}")
     public Response delete(@PathParam("id") Long id) {
-        estadoService.delete(id);
-        return Response.noContent().build();
+        LOG.info("Deletando estado com ID: " + id);
+
+        try {
+            estadoService.delete(id);
+            LOG.info("Estado com ID: " + id + " deletado com sucesso.");
+            return Response.noContent().build();
+        } catch (Exception e) {
+            LOG.error("Erro ao tentar deletar o estado com id" + id + ": " + e.getMessage());
+            return Response.serverError().entity("Sistema temporariamente indisponível.").build();
+        }
     }
     
 }

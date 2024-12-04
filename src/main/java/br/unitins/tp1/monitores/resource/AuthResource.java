@@ -58,7 +58,6 @@ public class AuthResource {
                     .entity("Usuario não encontrado").build();
         }
 
-        // Verificar a role e buscar na tabela correspondente
         if ("Adm".equalsIgnoreCase(authDTO.role())) {
             Funcionario funcionario = funcionarioService.findByUsername(authDTO.username());
 
@@ -66,17 +65,17 @@ public class AuthResource {
                 return Response.status(Response.Status.FORBIDDEN)
                         .entity("Funcionário não encontrado").build();
             }
-            usuario.setPerfil(Perfil.ADM); // ou o perfil adequado para Funcionário
+            usuario.setPerfil(Perfil.ADM); 
 
-            // Geração do JWT ou outras ações
+            
         } else if ("Cliente".equalsIgnoreCase(authDTO.role())) {
             Cliente cliente = clienteService.findByUsername(authDTO.username());
             if (cliente == null) {
                 return Response.status(Response.Status.FORBIDDEN)
                         .entity("Cliente não encontrado").build();
             }
-            usuario.setPerfil(Perfil.USER); // ou o perfil adequado para Funcionário
-            // Geração do JWT ou outras ações
+            usuario.setPerfil(Perfil.USER); 
+           
         } else {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("Role inválida").build();

@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import br.unitins.tp1.monitores.dto.pagamento.BoletoResponseDTO;
 import br.unitins.tp1.monitores.dto.pagamento.CartaoDTO;
 import br.unitins.tp1.monitores.dto.pagamento.CartaoResponseDTO;
@@ -77,7 +81,7 @@ public class PedidoServiceImpl implements PedidoService {
         }
         pedido.setCliente(cliente);
         pedido.setData(LocalDateTime.now());
-        pedido.setPrazoPagamento(LocalDateTime.now().plusSeconds(60));
+        pedido.setPrazoPagamento(LocalDateTime.now().plusSeconds(20));
 
         EnderecoPedido enderecoPedido = new EnderecoPedido();
         enderecoPedido.setLogradouro(dto.endereco().logradouro());
@@ -141,7 +145,10 @@ public class PedidoServiceImpl implements PedidoService {
             } else {
                 throw new ValidationException("idMonitor", "Monitor com o id fornecido não foi encontrado");
             }
+            Integer subEstoque = itemDTO.quantidade();
 
+            Lote lote = loteRepository.findByIdMonitor(itemDTO.idMonitor());
+            lote.setQuantidade(subEstoque - lote.getQuantidade());
             listaItens.add(item);
         }
         return listaItens; // Retorna a lista de ItemPedido
@@ -189,6 +196,7 @@ public class PedidoServiceImpl implements PedidoService {
     @Override
     @Transactional
     public PixResponseDTO gerarInformacoesPix(Long idPedido) {
+
         Double total = pedidoRepository.findById(idPedido).getTotal();
 
         Pix pix = new Pix();
@@ -334,11 +342,13 @@ public class PedidoServiceImpl implements PedidoService {
             throw new ValidationException("idMonitor", "Monitor com o id fornecido não foi encontrado");
         }
 
-        Lote lote = loteRepository.findByIdMonitor(idMonitor);
+        Lote lote = loteRepository.findByIdMonitorLote(idMonitor);
         if (lote == null || lote.getQuantidade() < quantidade) {
             throw new ValidationException("idMonitor", "Não há estoque suficiente para o monitor com o id fornecido");
         }
     }
+
+    private static final Logger LOG = LoggerFactory.getLogger(MonitorService.class);
 
     @Scheduled(every = "10s")
     @Transactional
@@ -346,29 +356,35 @@ public class PedidoServiceImpl implements PedidoService {
         LocalDateTime now = LocalDateTime.now();
         List<Pedido> pedidosExpirados = pedidoRepository.findPedidosExpirados(now);
 
-        for (Pedido pedido : pedidosExpirados) {
-            boolean expirado = false;
-            for (StatusPedido statusPedido : pedido.getListaStatus()) { // Verifica se já não está expirado
-                if (statusPedido.getStatus().getId() == 2) {
-                    expirado = true;
-                    break;
+        if (pedidosExpirados != null) {
+            for (Pedido pedido : pedidosExpirados) {
+                boolean expirado = false;
+                for (StatusPedido statusPedido : pedido.getListaStatus()) { // Verifica se já não está expirado
+                    if (statusPedido.getStatus().getId() == 2) {
+                        LOG.info("Pedido com mudança de status para expirado: " + pedido.getId());
+                        expirado = true;
+                        break;
+                    }
                 }
-            }
-            if (expirado)
-                continue;
+                if (expirado)
+                    continue;
 
-            // Atualiza o status do pedido para "Cancelado"
-            updateStatusPedido(pedido.getId(), 2); // 2 -> Pagamento Expirado
+                updateStatusPedido(pedido.getId(), 2); // 2 -> Pagamento Expirado
 
-            // Devolvendo ao estoque
-            for (ItemPedido item : pedido.getListaItem()) {
-                Monitor monitor = item.getMonitor();
-                Lote lote = loteRepository.findByIdMonitor(monitor.getId());
+                // Devolvendo ao estoque
+                for (ItemPedido item : pedido.getListaItem()) {
+                    Long idLote = item.getLote().getId();
+                    Lote lote = loteRepository.findById(idLote);
+                    
+                    if (lote != null) {
+                        Integer novaQuantidade = lote.getQuantidade() + item.getQuantidade();
+                        lote.setQuantidade(novaQuantidade);
+                    }
 
-                if (lote != null) {
-                    Integer novaQuantidade = lote.getQuantidade() + item.getQuantidade();
-                    lote.setQuantidade(novaQuantidade);
+
+
                 }
+
             }
         }
     }

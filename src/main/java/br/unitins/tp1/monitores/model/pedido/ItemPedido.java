@@ -2,6 +2,7 @@ package br.unitins.tp1.monitores.model.pedido;
 
 
 import br.unitins.tp1.monitores.model.DefaultEntity;
+import br.unitins.tp1.monitores.model.Lote;
 import br.unitins.tp1.monitores.model.Monitor;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,6 +21,9 @@ public class ItemPedido extends DefaultEntity {
     @JoinColumn(name = "id_monitor", nullable = false)
     private Monitor monitor;
 
+    @ManyToOne
+    @JoinColumn(name = "id_lote", nullable = true)
+    private Lote lote;
 
     public Double getPreco() {
         return preco;
@@ -45,4 +49,12 @@ public class ItemPedido extends DefaultEntity {
         this.monitor = monitor;
     }
 
+    public Lote getLote() {
+        return lote;
+    }
+
+    public void setLote(Lote lote) {
+        this.lote = lote;
+    }
+    
 }

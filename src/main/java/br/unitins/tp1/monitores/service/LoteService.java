@@ -12,6 +12,8 @@ public interface LoteService {
 
     Lote findByCodigo(String codigo);
 
+    Lote findByIdMonitorLote(Long idMonitor);
+
     Lote findByIdMonitor(Long idMonitor);
 
     List<Lote> findAll();

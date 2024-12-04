@@ -28,11 +28,22 @@ public class LoteRepository implements PanacheRepository<Lote> {
     }
     */
 
-
     public Lote findByIdMonitor(Long idMonitor){
 
 
-        return find("SELECT l FROM Lote l WHERE l.monitor.id = ?1 ORDER BY l.data", idMonitor).firstResult();
+        return find("SELECT l FROM Lote l WHERE l.monitor.id = ?1  ORDER BY l.data", idMonitor).firstResult();
+    }
+    public Lote findByIdMonitorLote(Long idMonitor) {
+        StringBuffer jpql = new StringBuffer();
+        jpql.append("SELECT ");
+        jpql.append(" l ");
+        jpql.append(" FROM ");
+        jpql.append(" Lote l ");
+        jpql.append(" WHERE ");
+        jpql.append(" l.monitor.id = ?1 ");
+        jpql.append(" AND l.quantidade > 0 ");
+        jpql.append(" ORDER BY l.data ");
+        return find(jpql.toString(), idMonitor).firstResult();
     }
 
     // codigo nem sempre unico sendo por fabricante, ou seja, concatenar com o id do fabricante como exemplo --
