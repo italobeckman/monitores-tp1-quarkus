@@ -7,10 +7,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class LoteRepository implements PanacheRepository<Lote> {
     
-
     /** 
-    * @return retorna o monitor com o lote mais antigo e com quantidade maior que zero
-    */
+     * @return retorna o monitor com o lote mais antigo e com quantidade maior que zero
+     */
+    
+    /*  
     public Lote findByIdMonitor(Long idMonitor) {
         StringBuffer jpql = new StringBuffer();
         jpql.append("SELECT ");
@@ -25,6 +26,15 @@ public class LoteRepository implements PanacheRepository<Lote> {
 
         return find(jpql.toString(), idMonitor).firstResult();
     }
+    */
+
+
+    public Lote findByIdMonitor(Long idMonitor){
+
+
+        return find("SELECT l FROM Lote l WHERE l.monitor.id = ?1 ORDER BY l.data", idMonitor).firstResult();
+    }
+
     // codigo nem sempre unico sendo por fabricante, ou seja, concatenar com o id do fabricante como exemplo --
     public Lote findByCodigo(String codigo) {
         return find("SELECT l FROM Lote l WHERE l.codigo = ?1", codigo).firstResult();    

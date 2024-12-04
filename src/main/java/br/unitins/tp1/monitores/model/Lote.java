@@ -14,6 +14,10 @@ public class Lote extends DefaultEntity {
     private String codigo;
     private Integer quantidade;
 
+    @ManyToOne
+    @JoinColumn(name = "id_fornecedor")
+    Fornecedor fornecedor;
+
     public Monitor getMonitor() {
         return monitor;
     }
@@ -38,7 +42,13 @@ public class Lote extends DefaultEntity {
     public void setQuantidade(Integer quantidade) {
         this.quantidade = quantidade;
     }
-
+    public Fornecedor getFornecedor() {
+        return fornecedor;
+    }
+    public void setFornecedor(Fornecedor fornecedor) {
+        this.fornecedor = fornecedor;
+    }
+    
     
 
 }

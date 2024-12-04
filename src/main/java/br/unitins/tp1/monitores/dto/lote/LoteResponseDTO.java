@@ -10,6 +10,7 @@ public record LoteResponseDTO(
     LocalDate data,
     String codigo,
     Integer quantidade,
+    Long idFornecedor,
     MonitorResponseDTO monitor
 ) {
 
@@ -19,6 +20,7 @@ public record LoteResponseDTO(
             lote.getData(),
             lote.getCodigo(),
             lote.getQuantidade(),
+            lote.getFornecedor().getId(),
             MonitorResponseDTO.valueOf(lote.getMonitor())
             );
 

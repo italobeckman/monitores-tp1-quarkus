@@ -1,6 +1,7 @@
 package br.unitins.tp1.monitores.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import br.unitins.tp1.monitores.dto.lote.LoteRequestDTO;
 import br.unitins.tp1.monitores.model.Lote;
@@ -44,7 +45,9 @@ public class LoteServiceImpl implements LoteService {
         // buscando o estado a partir de um id do lote
         Lote lote = new Lote();
         lote.setMonitor(monitorService.findById(dto.idMonitor()));
-        lote.setCodigo(dto.codigo());
+        String uuid = UUID.randomUUID().toString();
+        String codigoLote = "MONITOR-" + uuid;
+        lote.setCodigo(codigoLote);
         lote.setData(dto.data());
         lote.setQuantidade(dto.quantidade());
 
@@ -60,7 +63,6 @@ public class LoteServiceImpl implements LoteService {
         Lote lote = loteRepository.findById(id);
 
         lote.setMonitor(monitorService.findById(dto.idMonitor()));
-        lote.setCodigo(dto.codigo());
         lote.setData(dto.data());
         lote.setQuantidade(dto.quantidade());
 

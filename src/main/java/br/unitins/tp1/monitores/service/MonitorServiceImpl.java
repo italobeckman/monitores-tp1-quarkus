@@ -1,10 +1,12 @@
 package br.unitins.tp1.monitores.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import br.unitins.tp1.monitores.dto.monitor.MonitorRequestDTO;
 import br.unitins.tp1.monitores.model.Monitor;
 import br.unitins.tp1.monitores.repository.MonitorRepository;
+import br.unitins.tp1.monitores.validation.ValidationException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -81,7 +83,20 @@ public class MonitorServiceImpl implements MonitorService {
     @Override
     public List<Monitor> findAll() {
         return monitorRepository.listAll();
-       // return estadoRepository.findAll().list();
+    }
+
+    @Override
+    @Transactional
+    public Monitor updateNomeImagem(Long id, String nomeImagem) {
+        Monitor monitor = monitorRepository.findById(id);
+        if (monitor == null)
+            throw new ValidationException("idMonitor", "Monitor nao encontrado");
+
+        if (monitor.getListaImagem() == null)
+            monitor.setListaImagem(new ArrayList<>());
+
+        monitor.getListaImagem().add(nomeImagem);
+        return monitor;
     }
     
 }

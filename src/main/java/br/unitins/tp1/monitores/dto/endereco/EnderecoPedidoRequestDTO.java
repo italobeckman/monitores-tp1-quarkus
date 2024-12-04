@@ -6,22 +6,27 @@ import jakarta.validation.constraints.Size;
 
 public record EnderecoPedidoRequestDTO(
 
-
-    @NotBlank(message = "O nome não pode ser nulo")
-    @Size(max = 100, message = "O nome deve ter no maximo 100 caracteres")
+    @NotBlank(message = "O logradouro não pode ser nulo")
+    @Size(max = 100, message = "O logradouro deve ter no máximo 100 caracteres")
     String logradouro,
-    @NotBlank(message = "A sigla não pode ser nula")
-    @Size(max = 100)
+
+    @NotBlank(message = "O número não pode ser nulo")
+    @Size(max = 100, message = "O número deve ter no máximo 100 caracteres")
     String numero,
-    @NotBlank(message = "A sigla não pode ser nula")
+
+    @NotBlank(message = "O complemento não pode ser nulo")
     String complemento,
-    @NotBlank(message = "A sigla não pode ser nula")
+
+    @NotBlank(message = "O bairro não pode ser nulo")
     String bairro,
-    @NotBlank(message = "A sigla não pode ser nula")
+
+    @NotBlank(message = "O CEP não pode ser nulo")
     String cep,
-    @Positive(message = "Informe um campo valido para o id de Fabricante")
+
+    @Positive(message = "Informe um campo válido para o id de Estado")
     Long idEstado,
-    @Positive(message = "Informe um campo valido para o id de tamanhoMonitor")
+
+    @Positive(message = "Informe um campo válido para o id de Município")
     Long idMunicipio
 
 ) {

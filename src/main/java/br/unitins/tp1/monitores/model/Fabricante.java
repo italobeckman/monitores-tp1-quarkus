@@ -6,10 +6,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.Email;
 @Entity
 public class Fabricante extends DefaultEntity {
     private String nome;
     private String cnpj;
+    @Email
     private String email;
     
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)

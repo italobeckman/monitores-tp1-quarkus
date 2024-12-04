@@ -2,17 +2,43 @@ package br.unitins.tp1.monitores.service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-
-import br.unitins.tp1.monitores.dto.itemPedido.ItemPedidoRequestDTO;
-import br.unitins.tp1.monitores.dto.pedido.PedidoRequestDTO;
-import br.unitins.tp1.monitores.model.ItemPedido;
+import java.util.UUID;
+import br.unitins.tp1.monitores.dto.pagamento.BoletoResponseDTO;
+import br.unitins.tp1.monitores.dto.pagamento.CartaoDTO;
+import br.unitins.tp1.monitores.dto.pagamento.CartaoResponseDTO;
+import br.unitins.tp1.monitores.dto.pagamento.PixResponseDTO;
+import br.unitins.tp1.monitores.dto.pedido.PedidoDTO;
+import br.unitins.tp1.monitores.dto.pedido.PedidoResponseDTO;
+import br.unitins.tp1.monitores.dto.pedido.item_pedido.ItemPedidoDTO;
+import br.unitins.tp1.monitores.model.Cliente;
+import br.unitins.tp1.monitores.model.EnderecoPedido;
+import br.unitins.tp1.monitores.model.Estado;
 import br.unitins.tp1.monitores.model.Lote;
-import br.unitins.tp1.monitores.model.Pedido;
+import br.unitins.tp1.monitores.model.Monitor;
+import br.unitins.tp1.monitores.model.Municipio;
+import br.unitins.tp1.monitores.model.pagamento.Boleto;
+import br.unitins.tp1.monitores.model.pagamento.Cartao;
+import br.unitins.tp1.monitores.model.pagamento.Pix;
+import br.unitins.tp1.monitores.model.pedido.ItemPedido;
+import br.unitins.tp1.monitores.model.pedido.Pedido;
+import br.unitins.tp1.monitores.model.pedido.Status;
+import br.unitins.tp1.monitores.model.pedido.StatusPedido;
+import br.unitins.tp1.monitores.repository.ClienteRepository;
+import br.unitins.tp1.monitores.repository.EstadoRepository;
+import br.unitins.tp1.monitores.repository.LoteRepository;
+import br.unitins.tp1.monitores.repository.MonitorRepository;
+import br.unitins.tp1.monitores.repository.MunicipioRepository;
+import br.unitins.tp1.monitores.repository.PagamentoRepository;
 import br.unitins.tp1.monitores.repository.PedidoRepository;
+import br.unitins.tp1.monitores.validation.ValidationException;
+import io.quarkus.scheduler.Scheduled;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 
 @ApplicationScoped
 public class PedidoServiceImpl implements PedidoService {
@@ -21,56 +47,329 @@ public class PedidoServiceImpl implements PedidoService {
     public PedidoRepository pedidoRepository;
 
     @Inject
-    public UsuarioService usuarioService;
+    public PagamentoRepository pagamentoRepository;
 
     @Inject
-    public LoteService loteService;
+    public MonitorRepository monitorRepository;
+
+    @Inject
+    public ClienteRepository clienteRepository;
+
+    @Inject
+    public LoteRepository loteRepository;
+
+    @Inject
+    MunicipioRepository municipioRepository;
+
+    @Inject
+    EstadoRepository estadoRepository;
 
     @Override
-    public Pedido findById(Long id) {
-        return pedidoRepository.findById(id);
-    }
-
-    @Override
-    public List<Pedido> findByUsername(String username) {
-
-        // return pedidoRepository.findByUsuario(usuario.getId());
-        return null;
-    }
-
-    // @Override
-    // public List<Pedido> findAll() {
-    //     // return pedidoRepository.findAll().list();
-
-    //     return null;
-    // }
-
-     @Override
     @Transactional
-    public Pedido create(PedidoRequestDTO dto, String username) {
+    public PedidoResponseDTO create(@Valid PedidoDTO dto, String username) {
         Pedido pedido = new Pedido();
+
+        pedido.setCodigo_pedido(username + "-" + UUID.randomUUID().toString());
+
+        Cliente cliente = clienteRepository.findByUsername(username);
+        if (cliente == null) {
+            throw new IllegalArgumentException("Cliente não encontrado para o username: " + username);
+        }
+        pedido.setCliente(cliente);
         pedido.setData(LocalDateTime.now());
-        pedido.setUsuario(usuarioService.findByUsername(username));
-        // eh importante validar se o total enviado via dto eh o mesmo gerado pelos produtos
-        pedido.setValorTotal(dto.valorTotal());
+        pedido.setPrazoPagamento(LocalDateTime.now().plusSeconds(60));
 
-        pedido.setListaItemPedido(new ArrayList<ItemPedido>());
+        EnderecoPedido enderecoPedido = new EnderecoPedido();
+        enderecoPedido.setLogradouro(dto.endereco().logradouro());
+        enderecoPedido.setNumero(dto.endereco().numero());
+        enderecoPedido.setComplemento(dto.endereco().complemento());
+        enderecoPedido.setCep(dto.endereco().cep());
 
-        for (ItemPedidoRequestDTO itemDTO : dto.listaItemPedido()) {
+        Municipio municipio = municipioRepository.findById(dto.endereco().idMunicipio());
+        if (municipio == null) {
+            throw new IllegalArgumentException("Município inválido para o ID: " + dto.endereco().idMunicipio());
+        }
+        enderecoPedido.setMunicipio(municipio);
+
+        Estado estado = estadoRepository.findById(dto.endereco().idEstado());
+        if (estado == null) {
+            throw new IllegalArgumentException("Estado inválido para o ID: " + dto.endereco().idEstado());
+        }
+        enderecoPedido.setEstado(estado);
+        enderecoPedido.setBairro(dto.endereco().bairro());
+
+        pedido.setEnderecoPedido(enderecoPedido);
+        List<ItemPedido> listaItens = getItensFromDTO(dto.itens(), pedido);
+
+        // Salva o Pedido primeiro para gerar o ID
+        if (listaItens == null || listaItens.isEmpty()) {
+
+            throw new IllegalArgumentException("A lista de itens não pode estar vazia.");
+        }
+        pedido.setListaItem(listaItens);
+        pedido.setTotal(calculateTotalPedido(listaItens));
+        pedidoRepository.persist(pedido);
+
+        // Obtém os itens
+
+        // Associa a lista de itens ao pedido
+
+        List<StatusPedido> listaStatus = Arrays.asList(createStatusPedido(1));
+        if (listaStatus.isEmpty()) {
+            throw new IllegalArgumentException("Status inicial do pedido não pode ser vazio.");
+        }
+        pedido.setListaStatus(listaStatus);
+
+        return PedidoResponseDTO.valueOf(pedido);
+    }
+
+    private List<ItemPedido> getItensFromDTO(List<ItemPedidoDTO> listaItemDTO, Pedido pedido) {
+        validarListaItemDTO(listaItemDTO);
+
+        List<ItemPedido> listaItens = new ArrayList<>();
+        for (ItemPedidoDTO itemDTO : listaItemDTO) {
+            verificarEstoquePorIdMonitor(itemDTO.idMonitor(), itemDTO.quantidade());
+
             ItemPedido item = new ItemPedido();
-            Lote lote = loteService.findByIdMonitor(itemDTO.idProduto());
-            item.setLote(lote);
-            // eh importante validar o preco
-            item.setPreco(itemDTO.preco());
-            // eh importante validar se tem estoque
-            item.setQuantidade(itemDTO.quantidade());
+            Monitor monitor = monitorRepository.findById(itemDTO.idMonitor());
 
-            pedido.getListaItemPedido().add(item);
+            if (monitor != null) {
+                item.setMonitor(monitor);
+                item.setQuantidade(itemDTO.quantidade());
+                double precoTotal = monitor.getPreco() * itemDTO.quantidade();
+                item.setPreco(precoTotal);
+            } else {
+                throw new ValidationException("idMonitor", "Monitor com o id fornecido não foi encontrado");
+            }
+
+            listaItens.add(item);
+        }
+        return listaItens; // Retorna a lista de ItemPedido
+    }
+
+    @Override
+    @Transactional
+    public void update(Long id, @Valid PedidoDTO dto) {
+        Pedido pedido = pedidoRepository.findById(id);
+
+        List<ItemPedido> itensFromDTO = getItensFromDTO(dto.itens());
+        List<ItemPedido> itensFromBanco = pedido.getListaItem();
+
+        itensFromBanco.clear();
+        itensFromDTO.forEach(i -> itensFromBanco.add(i));
+
+        pedido.setTotal(calculateTotalPedido(itensFromBanco));
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        pedidoRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public void updateStatusPedido(Long idPedido, Integer idStatus) {
+        Pedido pedido = pedidoRepository.findById(idPedido);
+
+        if (pedido == null) {
+            throw new ValidationException("idPedido", "Pedido não encontrado");
         }
 
-        pedidoRepository.persist(pedido);
-        
-        return pedido;
+        // Verifica se o status é válido
+        StatusPedido statusPedido = createStatusPedido(idStatus);
+        if (statusPedido == null) {
+            throw new ValidationException("idStatus", "Status inválido");
+        }
+
+        // Adiciona o novo status à lista de status do pedido
+        pedido.getListaStatus().add(statusPedido);
     }
-    
+
+    @Override
+    @Transactional
+    public PixResponseDTO gerarInformacoesPix(Long idPedido) {
+        Double total = pedidoRepository.findById(idPedido).getTotal();
+
+        Pix pix = new Pix();
+        pix.setValor(total);
+        pix.setChaveDestinatario("Monitor_store@monitorStore.com");
+        pix.setIdentificador(UUID.randomUUID().toString());
+
+        pagamentoRepository.persist(pix);
+        return PixResponseDTO.valueOf(pix);
+    }
+
+    @Override
+    @Transactional
+    public BoletoResponseDTO gerarInformacoesBoleto(Long idPedido) {
+        Double total = pedidoRepository.findById(idPedido).getTotal();
+
+        Boleto boleto = new Boleto();
+        boleto.setValor(total);
+        boleto.setCodigo(UUID.randomUUID().toString());
+
+        pagamentoRepository.persist(boleto);
+        return BoletoResponseDTO.valueOf(boleto);
+    }
+
+    @Override
+    @Transactional
+    public PixResponseDTO registrarPagamentoPix(Long idPedido, Long idPix) {
+        Pedido pedido = pedidoRepository.findById(idPedido);
+        Pix pix = (Pix) pagamentoRepository.findById(idPix);
+        pedido.setPagamento(pix);
+
+        updateStatusPedido(idPedido, 3);
+        return PixResponseDTO.valueOf(pix);
+    }
+
+    @Override
+    @Transactional
+    public BoletoResponseDTO registrarPagamentoBoleto(Long idPedido, Long idBoleto) {
+        Pedido pedido = pedidoRepository.findById(idPedido);
+        Boleto boleto = (Boleto) pagamentoRepository.findById(idBoleto);
+        pedido.setPagamento(boleto);
+
+        updateStatusPedido(idPedido, 3);
+        return BoletoResponseDTO.valueOf(boleto);
+    }
+
+    @Override
+    @Transactional
+    public CartaoResponseDTO registrarPagamentoCartao(Long idPedido, CartaoDTO cartaoDTO) {
+        Pedido pedido = pedidoRepository.findById(idPedido);
+        updateStatusPedido(idPedido, 3);
+
+        Cartao cartao = CartaoDTO.convertToCartao(cartaoDTO);
+        cartao.setValor(pedido.getTotal());
+
+        pagamentoRepository.persist(cartao);
+        pedido.setPagamento(cartao);
+
+        return new CartaoResponseDTO(cartao.getNumero().substring(cartao.getNumero().length() - 4));
+    }
+
+    @Override
+    public PedidoResponseDTO findById(Long id) {
+        return PedidoResponseDTO.valueOf(pedidoRepository.findById(id));
+    }
+
+    @Override
+    public List<PedidoResponseDTO> findAll() {
+        return pedidoRepository.listAll().stream().map(PedidoResponseDTO::valueOf).toList();
+    }
+
+    @Override
+    public List<PedidoResponseDTO> findByCliente(Long idCliente) {
+        return pedidoRepository.findByCliente(idCliente).stream().map(PedidoResponseDTO::valueOf).toList();
+    }
+
+    @Override
+    public List<PedidoResponseDTO> findByUsername(String username) {
+        Cliente cliente = clienteRepository.findByUsername(username);
+        if (cliente == null) {
+            throw new ValidationException("Username", "Cliente não encontrado para o username fornecido.");
+        }
+        return pedidoRepository.findByCliente(cliente.getId()).stream()
+                .map(PedidoResponseDTO::valueOf)
+                .toList();
+    }
+
+    @Override
+    public List<PedidoResponseDTO> findByStatus(Integer idStatus) {
+        return pedidoRepository.findByStatus(idStatus).stream().map(PedidoResponseDTO::valueOf).toList();
+    }
+
+    private StatusPedido createStatusPedido(Integer id) {
+        StatusPedido statusPedido = new StatusPedido();
+
+        statusPedido.setStatus(Status.valueOf(id));
+
+        return statusPedido;
+    }
+
+    private Double calculateTotalPedido(List<ItemPedido> listaItem) {
+        return listaItem.stream()
+                .mapToDouble(ItemPedido::getPreco) // Soma os preços dos itens
+                .sum(); // Retorna a soma total
+    }
+
+    private List<ItemPedido> getItensFromDTO(List<ItemPedidoDTO> listaItemDTO) {
+        validarListaItemDTO(listaItemDTO); // Certifique-se de que os itens são válidos
+
+        List<ItemPedido> listaItens = new ArrayList<>();
+        for (ItemPedidoDTO itemDTO : listaItemDTO) {
+            verificarEstoquePorIdMonitor(itemDTO.idMonitor(), itemDTO.quantidade());
+
+            ItemPedido item = new ItemPedido();
+            Monitor monitor = monitorRepository.findById(itemDTO.idMonitor());
+
+            // Certifique-se de que o monitor não é nulo
+            if (monitor != null) {
+                item.setMonitor(monitor);
+                item.setQuantidade(itemDTO.quantidade());
+                // Calcule o preço total para este item
+                double precoTotal = monitor.getPreco() * itemDTO.quantidade();
+                item.setPreco(precoTotal); // Armazenar o preço total no ItemPedido
+            } else {
+                throw new ValidationException("idMonitor", "Monitor com o id fornecido não foi encontrado");
+            }
+
+            listaItens.add(item);
+        }
+        return listaItens;
+    }
+
+    private void validarListaItemDTO(List<ItemPedidoDTO> listaDTO) {
+        for (ItemPedidoDTO item : listaDTO) {
+            verificarEstoquePorIdMonitor(item.idMonitor(), item.quantidade());
+
+        }
+    }
+
+    private void verificarEstoquePorIdMonitor(Long idMonitor, Integer quantidade) {
+        Monitor monitor = monitorRepository.findById(idMonitor);
+        if (monitor == null) {
+            throw new ValidationException("idMonitor", "Monitor com o id fornecido não foi encontrado");
+        }
+
+        Lote lote = loteRepository.findByIdMonitor(idMonitor);
+        if (lote == null || lote.getQuantidade() < quantidade) {
+            throw new ValidationException("idMonitor", "Não há estoque suficiente para o monitor com o id fornecido");
+        }
+    }
+
+    @Scheduled(every = "10s")
+    @Transactional
+    public void atualizarPedidoExpirados() {
+        LocalDateTime now = LocalDateTime.now();
+        List<Pedido> pedidosExpirados = pedidoRepository.findPedidosExpirados(now);
+
+        for (Pedido pedido : pedidosExpirados) {
+            boolean expirado = false;
+            for (StatusPedido statusPedido : pedido.getListaStatus()) { // Verifica se já não está expirado
+                if (statusPedido.getStatus().getId() == 2) {
+                    expirado = true;
+                    break;
+                }
+            }
+            if (expirado)
+                continue;
+
+            // Atualiza o status do pedido para "Cancelado"
+            updateStatusPedido(pedido.getId(), 2); // 2 -> Pagamento Expirado
+
+            // Devolvendo ao estoque
+            for (ItemPedido item : pedido.getListaItem()) {
+                Monitor monitor = item.getMonitor();
+                Lote lote = loteRepository.findByIdMonitor(monitor.getId());
+
+                if (lote != null) {
+                    Integer novaQuantidade = lote.getQuantidade() + item.getQuantidade();
+                    lote.setQuantidade(novaQuantidade);
+                }
+            }
+        }
+    }
 }

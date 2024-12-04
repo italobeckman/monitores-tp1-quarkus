@@ -1,27 +1,33 @@
 package br.unitins.tp1.monitores.dto.pedido;
 
-import br.unitins.tp1.monitores.dto.itemPedido.ItemPedidoResponseDTO;
-import br.unitins.tp1.monitores.model.Pedido;
-
-import java.util.List;
 import java.time.LocalDateTime;
+import java.util.List;
+
+import br.unitins.tp1.monitores.dto.pedido.item_pedido.ItemPedidoResponseDTO;
+import br.unitins.tp1.monitores.dto.pessoa.ClienteResponseDTO;
+import br.unitins.tp1.monitores.model.pagamento.Pagamento;
+import br.unitins.tp1.monitores.model.pedido.Pedido;
+
+
 
 public record PedidoResponseDTO(
-        Long idPedido,
-        LocalDateTime data,
-        Double valorTotal,
-        List<ItemPedidoResponseDTO> listaItemPedido
-
-) {
-
-    public static PedidoResponseDTO valueOf(Pedido pedido) {
+    Long id,
+    ClienteResponseDTO cliente,
+    Double total,
+    List<ItemPedidoResponseDTO> itens,
+    List<StatusPedidoResponseDTO> status,
+    LocalDateTime prazoPagamento,
+    Pagamento pagamento
+){
+    public static PedidoResponseDTO valueOf(Pedido pedido){
         return new PedidoResponseDTO(
-                pedido.getId(),
-                pedido.getData(),
-                pedido.getValorTotal(),
-                pedido.getListaItemPedido().stream().map(i -> ItemPedidoResponseDTO.valueOf(i)).toList()
-                
+            pedido.getId(),
+            ClienteResponseDTO.valueOf(pedido.getCliente()),
+            pedido.getTotal(),
+            pedido.getListaItem().stream().map(ItemPedidoResponseDTO::valueOf).toList(),
+            pedido.getListaStatus().stream().map(StatusPedidoResponseDTO::valueOf).toList(),
+            pedido.getPrazoPagamento(),
+            pedido.getPagamento()
         );
     }
-
 }

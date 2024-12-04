@@ -70,6 +70,15 @@ public class EnderecoUser extends DefaultEntity {
         this.cep = cep;
     }
 
+    public boolean isCadastroCompleto() {
+        return 
+        logradouro != null && !logradouro.isEmpty() &&
+         numero != null && !numero.isEmpty() &&
+         bairro != null && !bairro.isEmpty() &&
+         estado != null && estado.getId() != null &&
+         municipio != null && municipio.getId() != null &&
+         cep != null && !cep.isEmpty();
+    }
     
     
 }

@@ -1,12 +1,19 @@
 package br.unitins.tp1.monitores.resource;
 
+import java.io.IOException;
+
+import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
+
 import br.unitins.tp1.monitores.dto.monitor.MonitorRequestDTO;
 import br.unitins.tp1.monitores.dto.monitor.MonitorResponseDTO;
+import br.unitins.tp1.monitores.form.ImageForm;
+import br.unitins.tp1.monitores.service.MonitorFileServiceImpl;
 import br.unitins.tp1.monitores.service.MonitorService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
@@ -14,6 +21,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.ResponseBuilder;
 
 
 @Path("/monitores")
@@ -22,6 +30,9 @@ import jakarta.ws.rs.core.Response;
 public class MonitorResource {
     @Inject
     public MonitorService monitorService;
+
+    @Inject
+    public MonitorFileServiceImpl monitorFileService;
 
     @GET
     @Path("/{id}")
@@ -76,6 +87,29 @@ public class MonitorResource {
     public Response delete (@PathParam("id")Long id) {
         monitorService.delete(id);
         return Response.noContent().build();
+    }
+
+    @PATCH
+    @Path("/{id}/upload/imagem")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Response uploadImage(@PathParam("id") Long id, @MultipartForm ImageForm form) {
+        try {
+            String nomeImagem = monitorFileService.save(form.getNomeImagem(), form.getImagem());
+
+            monitorService.updateNomeImagem(id, nomeImagem);
+        } catch (IOException e) {
+            Response.status(500).build();
+    }
+        return Response.noContent().build();
+    }
+    // lembrar prof excecção
+    @PATCH
+    @Path("/download/imagem/{nomeImagem}")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response downloadImage(@PathParam("nomeImagem") String nomeImagem){
+        ResponseBuilder response = Response.ok(monitorFileService.find(nomeImagem));
+        response.header("Content-Disposition", "attachment; filename=" + nomeImagem);
+        return response.build();
     }
 }
 

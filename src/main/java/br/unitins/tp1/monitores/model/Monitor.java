@@ -1,42 +1,45 @@
 package br.unitins.tp1.monitores.model;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 public class Monitor extends DefaultEntity {
-   
+
     private String nome;
     private String marca;
     private String modelo;
     private Double preco;
     private String taxaAtualizacao;
     private String tempoResposta;
-    private LocalDate anoLancamento;
+    private Integer anoLancamento;
+
+    @ElementCollection
+    @CollectionTable(name = "imagem_monitor", joinColumns = @JoinColumn(name = "id_monitor"))
+    private List<String> listaImagem;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_tamanho_monitor")
+    @JoinColumn(name = "tamanho_monitor_id")
     private TamanhoMonitor tamanhoMonitor;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_fabricante")
+    @JoinColumn(name = "fabricante_id")
     private Fabricante fabricante;
-    
 
-
-    
     public TamanhoMonitor getTamanhoMonitor() {
         return tamanhoMonitor;
     }
-    
+
     public void setTamanhoMonitor(TamanhoMonitor tamanhoMonitor) {
         this.tamanhoMonitor = tamanhoMonitor;
     }
-    
+
     public String getNome() {
         return nome;
     }
@@ -61,14 +64,7 @@ public class Monitor extends DefaultEntity {
         this.preco = preco;
     }
 
-    public LocalDate getAnoLancamento() {
-        return anoLancamento;
-    }
-
-    public void setAnoLancamento(LocalDate anoLancamento) {
-        this.anoLancamento = anoLancamento;
-    }
-
+  
 
     public String getModelo() {
         return modelo;
@@ -89,6 +85,7 @@ public class Monitor extends DefaultEntity {
     public String getTempoResposta() {
         return tempoResposta;
     }
+
     public void setTempoResposta(String tempoResposta) {
         this.tempoResposta = tempoResposta;
     }
@@ -101,8 +98,20 @@ public class Monitor extends DefaultEntity {
         this.fabricante = fabricante;
     }
 
-    
-    
+    public List<String> getListaImagem() {
+        return listaImagem;
+    }
 
-    
+    public void setListaImagem(List<String> listaImagem) {
+        this.listaImagem = listaImagem;
+    }
+
+    public Integer getAnoLancamento() {
+        return anoLancamento;
+    }
+
+    public void setAnoLancamento(Integer anoLancamento) {
+        this.anoLancamento = anoLancamento;
+    }
+
 }

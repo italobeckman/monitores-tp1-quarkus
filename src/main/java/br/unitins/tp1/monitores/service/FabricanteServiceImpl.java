@@ -38,7 +38,7 @@ public class FabricanteServiceImpl implements FabricanteService {
         fabricante.setNome(dto.nome());
         fabricante.setCnpj(dto.cnpj());
         fabricante.setEmail(dto.email());
-        fabricante.setListaTelefone(dto.telefones().stream().map(TelefoneFabricanteRequestDTO::valueOf).toList());
+        fabricante.setListaTelefone(dto.telefones().stream().map(TelefoneFabricanteRequestDTO::toEntity).toList());
 
         fabricanteRepository.persist(fabricante);
         return fabricante;

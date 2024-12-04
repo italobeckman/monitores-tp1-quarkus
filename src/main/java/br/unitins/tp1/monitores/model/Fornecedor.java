@@ -5,32 +5,19 @@ import java.util.List;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.Email;
 @Entity
-public class Fornecedor {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Fornecedor extends DefaultEntity {
     private String nome;
     private String cnpj;
+    @Email
     private String email;
-
     
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "fornecedor_id")
     private List<TelefoneFornecedor> listaTelefone;
-    
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getNome() {
         return nome;
@@ -38,11 +25,6 @@ public class Fornecedor {
 
     public void setNome(String nome) {
         this.nome = nome;
-    }
-
-    public Fornecedor nome(String nome) {
-        this.nome = nome;
-        return this;
     }
 
     public String getCnpj() {
@@ -53,13 +35,10 @@ public class Fornecedor {
         this.cnpj = cnpj;
     }
 
-    public Fornecedor cnpj(String cnpj) {
-        this.cnpj = cnpj;
-        return this;
-    }
     public String getEmail() {
         return email;
     }
+
     public void setEmail(String email) {
         this.email = email;
     }
@@ -71,5 +50,7 @@ public class Fornecedor {
     public void setListaTelefone(List<TelefoneFornecedor> listaTelefone) {
         this.listaTelefone = listaTelefone;
     }
+    
+ 
     
 }

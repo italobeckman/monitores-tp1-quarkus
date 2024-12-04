@@ -19,10 +19,10 @@ public record TelefoneFabricanteRequestDTO(
 	Long fabricante
 
 	) {
-	public static TelefoneFabricante valueOf(TelefoneFabricanteRequestDTO dto){
+	public static TelefoneFabricante toEntity(TelefoneFabricanteRequestDTO dto){
         TelefoneFabricante telefone = new TelefoneFabricante();
 
-        telefone.setCodigoArea(dto.codigoArea);
+        telefone.setCodigoArea(dto.codigoArea());
         telefone.setNumero(dto.numero());
         return telefone;
     } 

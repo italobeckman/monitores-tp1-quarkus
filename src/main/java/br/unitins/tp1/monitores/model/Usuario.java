@@ -9,6 +9,9 @@ public class Usuario extends DefaultEntity {
         private String username;
         private Perfil perfil;
         private String senha;
+        private String cpf;
+
+        
         public String getUsername() {
             return username;
         }
@@ -26,6 +29,12 @@ public class Usuario extends DefaultEntity {
         }
         public void setSenha(String senha) {
             this.senha = senha;
+        }
+        public String getCpf() {
+            return cpf;
+        }
+        public void setCpf(String cpf) {
+            this.cpf = cpf;
         }
         
 

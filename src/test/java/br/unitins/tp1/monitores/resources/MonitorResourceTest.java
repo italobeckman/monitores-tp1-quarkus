@@ -1,13 +1,9 @@
 package br.unitins.tp1.monitores.resources;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.jupiter.api.Test;
-import java.time.LocalDate;
-import br.unitins.tp1.monitores.dto.monitor.MonitorRequestDTO;
 import br.unitins.tp1.monitores.service.MonitorService;
 import io.quarkus.test.junit.QuarkusTest;
-import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
 
 @QuarkusTest

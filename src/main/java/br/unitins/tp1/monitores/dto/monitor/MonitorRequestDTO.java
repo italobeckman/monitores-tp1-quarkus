@@ -3,39 +3,43 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import java.time.LocalDate;
 
 public record MonitorRequestDTO(
-    @NotBlank
-    @Size(max = 100)
+
+    @NotBlank(message = "O nome não pode ser nulo")
+    @Size(max = 100, message = "O nome deve ter no máximo 100 caracteres")
     String nome,
 
-    @NotBlank
-    @Size(max = 100)
+    @NotBlank(message = "A marca não pode ser nula")
+    @Size(max = 100, message = "A marca deve ter no máximo 100 caracteres")
     String marca,
     
-    @NotBlank
-    @Size(max = 100)
+    @NotBlank(message = "O modelo não pode ser nulo")
+    @Size(max = 100, message = "O modelo deve ter no máximo 100 caracteres")
     String modelo,
 
-    @NotNull
+    @NotNull(message = "O preço não pode ser nulo")
+    @Positive(message = "O preço deve ser um valor positivo")
     Double preco,
 
-    @NotBlank
-    @Size(max = 100)
+    @NotBlank(message = "A taxa de atualização não pode ser nula")
+    @Size(max = 100, message = "A taxa de atualização deve ter no máximo 100 caracteres")
     String taxaAtualizacao,
     
-    @NotBlank
-    @Size(max = 20)
+    @NotBlank(message = "O tempo de resposta não pode ser nulo")
+    @Size(max = 20, message = "O tempo de resposta deve ter no máximo 20 caracteres")
     String tempoResposta,
     
-    @NotNull
-    LocalDate anoLancamento,
+    @NotNull(message = "O ano de lançamento não pode ser nulo")
+    Integer anoLancamento,
     
-    @Positive(message = "Informe um campo valido para o id de Fabricante")
+    @NotNull(message = "O id do fabricante não pode ser nulo")
+    @Positive(message = "Informe um campo válido para o id de Fabricante")
     Long idFabricante,
     
-    @Positive(message = "Informe um campo valido para o id de tamanhoMonitor")
+    @NotNull(message = "O id do tamanho do monitor não pode ser nulo")
+    @Positive(message = "Informe um campo válido para o id de tamanhoMonitor")
     Long idTamanhoMonitor
+
 ) {
 }

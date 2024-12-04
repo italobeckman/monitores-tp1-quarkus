@@ -18,4 +18,7 @@ public interface MonitorService {
     void delete(Long id);
 
     Monitor create(MonitorRequestDTO dto);
+
+    Monitor updateNomeImagem(Long id, String nomeImagem);
+    
 }
