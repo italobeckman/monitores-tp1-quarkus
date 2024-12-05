@@ -135,10 +135,12 @@ insert into Usuario(username, perfil, senha) values (
 );
 
 insert into EnderecoUser(logradouro, numero, complemento, bairro, cep, id_municipio, id_estado)values
+('Rua 1', 1, 'Apto 1', 'Centro', '12345678', 1, 1),
 ('Rua 1', 1, 'Apto 1', 'Centro', '12345678', 1, 1);
 
-insert into Cliente(username, nome, cpf, email, sexo, id_endereco_user, id_usuario, nomeImagem) values
-('janio', 'Janio', '12345678901', 'janio@cliente.com', 2, 1, 1, 'C:\Users\italo\quarkus\images\usuario\7bc22f6d-50de-4b78-848e-5d29cf92218e.jpeg');
+insert into Cliente(username, nome, cpf, email, sexo, id_endereco_user, id_usuario) values
+('janio', 'Janio', '12345678901', 'janio@cliente.com', 2, 1, 1),
+('carloshenrique', 'carlos henrique', '12345678901', 'carlos@cliente.com', 2, 2, 2);
 
 insert into Funcionario(username, nome, cpf, email, sexo, id_endereco_funcionario, id_usuario) values
 ('janio', 'Janio', '12345678901', 'janio@cliente.com', 2, 1, 1);

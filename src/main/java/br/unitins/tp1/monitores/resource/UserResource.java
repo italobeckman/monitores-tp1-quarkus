@@ -18,8 +18,8 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -61,22 +61,21 @@ public class UserResource {
         return Response.status(Status.CREATED).entity(UsuarioResponseDTO.valueOf(usuario)).build();
     }
 
-    @PUT
-    @Path("/{id}")
+    @PATCH
+    @Path("/update")
     @RolesAllowed({"Adm", "User"})
     public Response update(@Valid UsuarioUpdateRequestDTO dto) {
         String username = jwt.getSubject();
-        Usuario usuario = usuarioService.findByUsername(username);
 
 
-        LOG.info("Atualizando usuário com ID: %d", usuario);
+        LOG.info("Atualizando usuário com ID: %d", username);
 
         try {
-            usuarioService.update(usuario, dto);
-            LOG.info("Usuário com ID %d atualizado com sucesso.", usuario);
-            return Response.ok(UsuarioResponseDTO.valueOf(usuario)).build();
+            usuarioService.update(username, dto);
+            LOG.info("Usuário atualizado com sucesso");
+            return Response.noContent().build();
         } catch (ValidationException e) {
-            LOG.error("Erro ao atualizar usuário com ID %d: %s", usuario, e.getMessage());
+            LOG.error("Erro ao atualizar usuário", e.getMessage());
             return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
     }

@@ -56,6 +56,13 @@ public class PedidoResource {
     @POST 
     @RolesAllowed({ "User" }) 
     public Response create(@Valid PedidoDTO pedidoDTO, @Context SecurityContext securityContext) {
+        if (pedidoDTO == null) {
+            throw new ValidationException("RequestNULL ", "O request não pode ser nulo.");
+        }
+        if (pedidoDTO.itens().isEmpty()){
+            throw new ValidationException("RequestItensNULL ", "O request não pode ser nulo.");
+
+        }
         String username = jwt.getSubject();
         LOG.info("Pedido gerado pelo cliente: {}", username);
 

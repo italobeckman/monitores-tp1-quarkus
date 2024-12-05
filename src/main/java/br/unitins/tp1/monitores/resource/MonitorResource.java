@@ -13,6 +13,7 @@ import br.unitins.tp1.monitores.form.ImageForm;
 import br.unitins.tp1.monitores.model.Monitor;
 import br.unitins.tp1.monitores.service.MonitorFileServiceImpl;
 import br.unitins.tp1.monitores.service.MonitorService;
+import br.unitins.tp1.monitores.validation.ValidationException;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -151,8 +152,12 @@ public class MonitorResource {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response downloadImage(@PathParam("nomeImagem") String nomeImagem) {
         LOG.info("Fazendo download da imagem: {}", nomeImagem);
-
+        monitorFileService.find(nomeImagem);
+        if (monitorFileService == null) {
+            throw new ValidationException("monitorFile", "Imagem não encontrada");
+        }
         ResponseBuilder response = Response.ok(monitorFileService.find(nomeImagem));
+        
         response.header("Content-Disposition", "attachment; filename=" + nomeImagem);
         LOG.info("Download da imagem {} sucedido.", nomeImagem); 
         return response.build();

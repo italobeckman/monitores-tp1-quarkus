@@ -28,7 +28,8 @@ public class ClienteServiceImpl implements ClienteService {
     @Inject
     public MunicipioRepository municipioRepository;
 
-
+    @Inject 
+    ClienteService clienteService;
 
 
     @Override
@@ -53,7 +54,10 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     @Transactional
-    public Cliente update(Cliente cliente, ClienteRequestDTO dto) {
+    public Cliente update(String username, ClienteRequestDTO dto) {
+
+        Cliente cliente = clienteService.findByUsername(username);
+
         if (cliente == null) {
             throw new ValidationException("cliente", "Cliente não encontrado.");
         }
@@ -77,35 +81,37 @@ public class ClienteServiceImpl implements ClienteService {
             throw new ValidationException("enderecoUser", "Endereço é obrigatório.");
         }
 
-        Estado estado = estadoRepository.findById(dto.enderecoUser().getEstado().getId());
-        Municipio municipio = municipioRepository.findById(dto.enderecoUser().getMunicipio().getId());
+        Estado estado = estadoRepository.findById(dto.enderecoUser().idEstado());
+        Municipio municipio = municipioRepository.findById(dto.enderecoUser().idMunicipio());
 
-        if( estado == null || dto.enderecoUser().getEstado() == null) {
+        if( estado == null || dto.enderecoUser().idEstado() == null) {
             throw new ValidationException("estado", "Estado é obrigatório.");
         }
-        if(municipio == null || dto.enderecoUser().getMunicipio() == null) {
+        if(municipio == null || dto.enderecoUser().idEstado() == null) {
             throw new ValidationException("municipio", "Município é obrigatório.");
         }
-        if (dto.enderecoUser().getLogradouro() == null || dto.enderecoUser().getLogradouro().trim().isEmpty()) {
+        if (dto.enderecoUser().logradouro() == null || dto.enderecoUser().logradouro().trim().isEmpty()) {
             throw new ValidationException("logradouro", "Logradouro é obrigatório.");
         }
-        if (dto.enderecoUser().getNumero() == null || dto.enderecoUser().getNumero().trim().isEmpty()) {
+        if (dto.enderecoUser().numero() == null || dto.enderecoUser().numero().trim().isEmpty()) {
             throw new ValidationException("numero", "Numero é obrigatório.");
         }
-        if (dto.enderecoUser().getCep() == null || dto.enderecoUser().getCep().trim().isEmpty()) {
+        if (dto.enderecoUser().cep() == null || dto.enderecoUser().cep().trim().isEmpty()) {
             throw new ValidationException("cep", "Cep é obrigatório.");
         }
-        if (dto.enderecoUser().getBairro() == null || dto.enderecoUser().getBairro().trim().isEmpty()) {
+        if (dto.enderecoUser().bairro() == null || dto.enderecoUser().bairro().trim().isEmpty()) {
             throw new ValidationException("bairro", "Bairro é obrigatório.");
         }
         EnderecoUser enderecoUser = new EnderecoUser();
-        enderecoUser.setLogradouro(dto.enderecoUser().getLogradouro()); 
-        enderecoUser.setNumero(dto.enderecoUser().getNumero()); 
-        enderecoUser.setComplemento(dto.enderecoUser().getComplemento()); 
-        enderecoUser.setCep(dto.enderecoUser().getCep()); 
-        enderecoUser.setMunicipio(dto.enderecoUser().getMunicipio()); 
-        enderecoUser.setEstado(dto.enderecoUser().getEstado()); 
-        enderecoUser.setBairro(dto.enderecoUser().getBairro()); 
+        enderecoUser.setLogradouro(dto.enderecoUser().logradouro()); 
+        enderecoUser.setNumero(dto.enderecoUser().numero()); 
+        enderecoUser.setComplemento(dto.enderecoUser().complemento()); 
+        enderecoUser.setCep(dto.enderecoUser().cep()); 
+
+        
+        enderecoUser.setMunicipio(municipio); 
+        enderecoUser.setEstado(estado); 
+        enderecoUser.setBairro(dto.enderecoUser().bairro()); 
         
 
         cliente.setEnderecoUser(enderecoUser); 

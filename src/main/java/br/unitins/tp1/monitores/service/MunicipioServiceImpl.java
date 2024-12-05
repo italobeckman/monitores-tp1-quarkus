@@ -59,7 +59,7 @@ public class MunicipioServiceImpl implements MunicipioService {
             throw new ValidationException("idEstado", "Estado é obrigatório.");
         }
 
-        // Validação se o estado existe (boa prática)
+      
         estadoService.findById(dto.idEstado());
 
         Municipio municipio = new Municipio();
@@ -89,7 +89,7 @@ public class MunicipioServiceImpl implements MunicipioService {
             throw new ValidationException("idEstado", "Estado é obrigatório.");
         }
 
-        // Validação se o estado existe (boa prática)
+       
         estadoService.findById(dto.idEstado());
 
         Municipio municipio = municipioRepository.findById(id);

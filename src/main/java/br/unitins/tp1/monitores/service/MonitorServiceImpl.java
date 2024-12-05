@@ -32,6 +32,7 @@ public class MonitorServiceImpl implements MonitorService {
         if (monitor == null) {
             throw new ValidationException("id", "Monitor não encontrado.");
         }
+        
         return monitor;
     }
 

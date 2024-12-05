@@ -87,8 +87,8 @@ public class ClienteResource {
                 return Response.status(Status.NOT_FOUND).entity("Cliente não encontrado.").build();
             }
 
-            // Lógica para atualizar o cliente com os dados do DTO
-            cliente = clienteService.update(cliente, dto);
+            
+            cliente = clienteService.update(username, dto);
 
             return Response.ok(cliente).build();
 

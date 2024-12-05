@@ -96,8 +96,6 @@ public class MonitorTest {
         assertEquals("Samsung", monitor.getFabricante().getNome());
 
     }
-
-    // Testes para valores nulos
      @Test
     public void testNomeNull() {
         Monitor monitor = new Monitor();

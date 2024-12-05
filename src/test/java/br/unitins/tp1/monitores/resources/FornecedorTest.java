@@ -50,7 +50,7 @@ public class FornecedorTest {
     }
 
 
-    // Testes para valores nulos
+  
     @Test
     public void testNomeNull() {
         Fornecedor fornecedor = new Fornecedor();
@@ -72,7 +72,7 @@ public class FornecedorTest {
         assertNull(fornecedor.getEmail());
     }
 
-    // Testes para valores vazios
+    
     @Test
     public void testNomeVazio() {
         Fornecedor fornecedor = new Fornecedor();

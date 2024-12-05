@@ -1,6 +1,6 @@
 package br.unitins.tp1.monitores.dto.pessoa;
 
-import br.unitins.tp1.monitores.model.EnderecoUser;
+import br.unitins.tp1.monitores.dto.endereco.EnderecoUserRequestDTO;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -16,5 +16,5 @@ public record ClienteRequestDTO(
     @Max(value = 2, message = "O idSexo deve ser 1 ou 2.")
     Integer idSexo,
     
-    EnderecoUser enderecoUser
+    EnderecoUserRequestDTO enderecoUser
 ) {}

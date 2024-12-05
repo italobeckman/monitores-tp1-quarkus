@@ -4,8 +4,10 @@ import java.util.List;
 
 import br.unitins.tp1.monitores.dto.usuario.UsuarioCreateRequestDTO;
 import br.unitins.tp1.monitores.dto.usuario.UsuarioUpdateRequestDTO;
+import br.unitins.tp1.monitores.model.Cliente;
 import br.unitins.tp1.monitores.model.Perfil;
 import br.unitins.tp1.monitores.model.Usuario;
+import br.unitins.tp1.monitores.repository.ClienteRepository;
 import br.unitins.tp1.monitores.repository.UsuarioRepository;
 import br.unitins.tp1.monitores.service.HashService;
 import br.unitins.tp1.monitores.validation.ValidationException;
@@ -19,9 +21,11 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Inject
     public UsuarioRepository usuarioRepository;
     
-
+    @Inject
+    public ClienteRepository clienteRepository;
     
-
+    @Inject
+    public UsuarioService usuarioService;
 
     @Override
     public Usuario findById(Long id) {
@@ -65,7 +69,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional
     public Usuario create(UsuarioCreateRequestDTO dto) {
-
+        
         if (dto.username() == null || dto.username().isBlank()) {
             throw new ValidationException("username", "Username é obrigatório.");
         }
@@ -78,19 +82,30 @@ public class UsuarioServiceImpl implements UsuarioService {
         if (dto.senha() == null || dto.senha().isBlank()) {
             throw new ValidationException("senha", "Senha é obrigatória.");
         }
+        if(dto.cpf() == null){
+            throw new ValidationException("cpf", "cpf é obrigatório.");
 
+        }
         Usuario usuario = new Usuario();
         usuario.setUsername(dto.username());
         usuario.setSenha(hashService.getHashSenha(dto.senha()));
         usuario.setPerfil(Perfil.USER); 
+        Cliente cliente = new Cliente();
+        cliente.setCpf(dto.cpf());
+        cliente.setUsername(dto.username());
 
+
+        clienteRepository.persist(cliente);
         usuarioRepository.persist(usuario);
         return usuario;
     }
 
     @Override
     @Transactional
-    public Usuario update(Usuario usuario, UsuarioUpdateRequestDTO dto) {
+    public Usuario update(String username, UsuarioUpdateRequestDTO dto) {
+
+        Usuario usuario = usuarioService.findByUsername(username);
+
         if (usuario == null) {
             throw new ValidationException("usuario", "Usuário não encontrado");
         }
@@ -106,7 +121,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         usuario.setUsername(dto.novoUsername()); 
         usuario.setSenha(hashService.getHashSenha(dto.novaSenha())); 
-
+        
         return usuario;
     }
 
