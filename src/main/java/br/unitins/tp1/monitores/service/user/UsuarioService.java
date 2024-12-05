@@ -20,7 +20,7 @@ public interface UsuarioService {
 
     Usuario create(UsuarioCreateRequestDTO dto);
 
-    Usuario update(Long id, UsuarioUpdateRequestDTO dto);
+    Usuario update(Usuario usuario, UsuarioUpdateRequestDTO dto);
 
     void delete(Long id);
 

@@ -64,15 +64,19 @@ public class UserResource {
     @PUT
     @Path("/{id}")
     @RolesAllowed({"Adm", "User"})
-    public Response update(@PathParam("id") Long id, @Valid UsuarioUpdateRequestDTO dto) {
-        LOG.info("Atualizando usuário com ID: %d", id);
+    public Response update(@Valid UsuarioUpdateRequestDTO dto) {
+        String username = jwt.getSubject();
+        Usuario usuario = usuarioService.findByUsername(username);
+
+
+        LOG.info("Atualizando usuário com ID: %d", usuario);
 
         try {
-            Usuario usuario = usuarioService.update(id, dto);
-            LOG.info("Usuário com ID %d atualizado com sucesso.", id);
+            usuarioService.update(usuario, dto);
+            LOG.info("Usuário com ID %d atualizado com sucesso.", usuario);
             return Response.ok(UsuarioResponseDTO.valueOf(usuario)).build();
         } catch (ValidationException e) {
-            LOG.error("Erro ao atualizar usuário com ID %d: %s", id, e.getMessage());
+            LOG.error("Erro ao atualizar usuário com ID %d: %s", usuario, e.getMessage());
             return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
     }
@@ -107,4 +111,5 @@ public class UserResource {
 
         return Response.ok(usuariosDTO).build();
     }
+    
 }

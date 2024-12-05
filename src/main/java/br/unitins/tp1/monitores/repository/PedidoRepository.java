@@ -15,7 +15,7 @@ public class PedidoRepository implements PanacheRepository<Pedido> {
     }
 
     public List<Pedido> findByItem(Long idMonitor) {
-        return find("JOIN listaItem l WHERE l.notebook.id = ?1 ", idMonitor).list();
+        return find("JOIN listaItem l WHERE l.monitor.id = ?1 ", idMonitor).list();
     }
 
     public List<Pedido> findByStatus(Integer idStatus) {

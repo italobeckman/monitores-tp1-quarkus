@@ -16,6 +16,5 @@ public record ClienteRequestDTO(
     @Max(value = 2, message = "O idSexo deve ser 1 ou 2.")
     Integer idSexo,
     
-    @NotBlank(message = "O enderecoUser não pode ser nulo.")
     EnderecoUser enderecoUser
 ) {}

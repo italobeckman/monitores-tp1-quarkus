@@ -40,10 +40,9 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     @Transactional
-    public Cliente update(Long id, ClienteRequestDTO dto) {
-        Cliente cliente = clienteRepository.findById(id);
+    public Cliente update(Cliente cliente, ClienteRequestDTO dto) {
         if (cliente == null) {
-            throw new ValidationException("id", "Cliente não encontrado.");
+            throw new ValidationException("cliente", "Cliente não encontrado.");
         }
         if (dto.nome() == null || dto.nome().trim().isEmpty()) {
             throw new ValidationException("nome", "Nome é obrigatório.");

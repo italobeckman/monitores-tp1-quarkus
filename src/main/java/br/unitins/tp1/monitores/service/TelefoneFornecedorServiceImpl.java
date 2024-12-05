@@ -6,6 +6,7 @@ import br.unitins.tp1.monitores.dto.fornecedor.TelefoneFornecedorRequestDTO;
 import br.unitins.tp1.monitores.model.Fornecedor;
 import br.unitins.tp1.monitores.model.TelefoneFornecedor;
 import br.unitins.tp1.monitores.repository.TelefoneFornecedorRepository;
+import br.unitins.tp1.monitores.validation.ValidationException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -32,6 +33,23 @@ public class TelefoneFornecedorServiceImpl implements TelefoneFornecedorService 
     @Override
     @Transactional
     public TelefoneFornecedor create(TelefoneFornecedorRequestDTO dto) {
+
+        if (dto == null) {
+            throw new ValidationException("dto", "DTO não pode ser nulo.");
+        }
+
+        if (dto.codigoArea() == null || dto.codigoArea().isBlank()) {
+            throw new ValidationException("codigoArea", "Código de área é obrigatório.");
+        }
+
+        if (dto.numero() == null || dto.numero().isBlank()) {
+            throw new ValidationException("numero", "Número é obrigatório.");
+        }
+
+        if (dto.fornecedor() == null || dto.fornecedor() <= 0) {
+            throw new ValidationException("fabricante", "Fabricante é obrigatório.");
+        }
+        
         TelefoneFornecedor telefoneFornecedor = new TelefoneFornecedor();
         telefoneFornecedor.setCodigoArea(dto.codigoArea());
         telefoneFornecedor.setNumero(dto.numero());
@@ -44,14 +62,39 @@ public class TelefoneFornecedorServiceImpl implements TelefoneFornecedorService 
     @Override
     @Transactional
     public TelefoneFornecedor update(Long id, TelefoneFornecedorRequestDTO dto) {
-        TelefoneFornecedor telefoneFornecedor = telefoneFornecedorRepository.findById(id);
+        
+        
+        if(id == null || id <= 0) {
+            throw new ValidationException("id", "ID inválido.");
+        }
 
+        if (dto == null) {
+            throw new ValidationException("dto", "DTO não pode ser nulo.");
+        }
+        
+        if (dto.codigoArea() == null || dto.codigoArea().isBlank()) {
+            throw new ValidationException("codigoArea", "Código de área é obrigatório.");
+        }
+        
+        if (dto.numero() == null || dto.numero().isBlank()) {
+            throw new ValidationException("numero", "Número é obrigatório.");
+        }
+
+        if (dto.fornecedor() == null || dto.fornecedor() <= 0) {
+            throw new ValidationException("fabricante", "Fabricante é obrigatório.");
+        }
+        
+        
+        TelefoneFornecedor telefoneFornecedor = telefoneFornecedorRepository.findById(id);
+        if (telefoneFornecedor == null) {
+            throw new ValidationException("id", "Telefone não encontrado.");
+        }
         telefoneFornecedor.setCodigoArea(dto.codigoArea());
         telefoneFornecedor.setNumero(dto.numero());
-
+        
         return telefoneFornecedor;
     }
-
+    
     @Override
     @Transactional
     public void delete(Long id) {

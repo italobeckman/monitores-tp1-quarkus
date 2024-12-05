@@ -90,8 +90,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional
-    public Usuario update(Long id, UsuarioUpdateRequestDTO dto) {
-        Usuario usuario = usuarioRepository.findById(id);
+    public Usuario update(Usuario usuario, UsuarioUpdateRequestDTO dto) {
         if (usuario == null) {
             throw new ValidationException("usuario", "Usuário não encontrado");
         }

@@ -21,6 +21,8 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
+
 
 @Path("/auth")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -46,24 +48,22 @@ public class AuthResource {
     @POST
     @Produces(MediaType.TEXT_PLAIN)
     public Response login(AuthRequestDTO authDTO) {
-        logger.info("Login efetuado por:  " + authDTO.username());
+        logger.info("Tentativa de login efetuado por:  " + authDTO.username());
         String hash = hashService.getHashSenha(authDTO.senha());
         logger.fine("Hash de senha gerado ");
 
         Usuario usuario = usuarioService.findByUsernameAndSenha(authDTO.username(), hash);
-
+        
         if (usuario == null) {
             logger.warning("User  not found: " + authDTO.username());
-            return Response.status(Response.Status.NO_CONTENT)
-                    .entity("Usuario não encontrado").build();
+            return Response.status(Status.UNAUTHORIZED).entity("Usuário ou senha inválidos").build();
         }
 
         if ("Adm".equalsIgnoreCase(authDTO.role())) {
             Funcionario funcionario = funcionarioService.findByUsername(authDTO.username());
 
             if (funcionario == null) {
-                return Response.status(Response.Status.FORBIDDEN)
-                        .entity("Funcionário não encontrado").build();
+                return Response.status(Status.UNAUTHORIZED).entity("Não há funcionario vinculado a este login.").build();
             }
             usuario.setPerfil(Perfil.ADM); 
 
@@ -81,9 +81,12 @@ public class AuthResource {
                     .entity("Role inválida").build();
         }
 
+        logger.info("Usuário logado com sucesso: " + usuario.getUsername());
         return Response.ok()
                 .header("Authorization", jwtService.generateJwt(UsuarioResponseDTO.valueOf(usuario)))
                 .build();
     }
+
+    
 
 }

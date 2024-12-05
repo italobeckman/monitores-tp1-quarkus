@@ -16,7 +16,7 @@ public interface ClienteService {
 
     Cliente findByCpf(String cpf);
 
-    Cliente update(Long id, ClienteRequestDTO dto);
+    Cliente update(Cliente cliente, ClienteRequestDTO dto);
 
     void delete(Long id);
     Cliente findByUsername(String username);

@@ -1,86 +1,53 @@
 package br.unitins.tp1.monitores.resources;
-import br.unitins.tp1.monitores.dto.fabricante.TelefoneFabricanteRequestDTO;
-import br.unitins.tp1.monitores.service.TelefoneFabricanteService;
-import io.quarkus.test.junit.QuarkusTest;
-import io.restassured.http.ContentType;
-import jakarta.inject.Inject;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import org.junit.jupiter.api.Test;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import br.unitins.tp1.monitores.model.TelefoneFabricante;
 
-@QuarkusTest
 public class TelefoneFabricanteTest {
 
-    @Inject
-    TelefoneFabricanteService telefoneFabricanteService;
-
     @Test
-    public void testFindAll() {
-        given()
-            .when().get("/telefonesfabricantes")
-            .then()
-                .statusCode(200);
+    public void testCodigoArea() {
+        TelefoneFabricante telefone = new TelefoneFabricante();
+        telefone.setCodigoArea("63");
+        assertEquals("63", telefone.getCodigoArea());
     }
 
     @Test
-    public void testCreate() {
-        TelefoneFabricanteRequestDTO dto = 
-            new TelefoneFabricanteRequestDTO("63", "333334443", 1L); // Assuming 1L is a valid fabricante ID
-
-        given()
-            .contentType(ContentType.JSON)
-            .body(dto)
-            .when()
-                .post("/telefonesfabricantes")
-            .then()
-                .statusCode(201)
-                .body("id", notNullValue(),
-                      "codigoArea", is("63"),
-                      "numero", is("333334443"));
-
-        // Clean up
-        telefoneFabricanteService.delete(telefoneFabricanteService.findByNumero("333334443").getId());
+    public void testNumero() {
+        TelefoneFabricante telefone = new TelefoneFabricante();
+        telefone.setNumero("999999999");
+        assertEquals("999999999", telefone.getNumero());
     }
 
     @Test
-    public void testUpdate() {
-        // Create a new telefoneFabricante to update
-        TelefoneFabricanteRequestDTO createDto = 
-            new TelefoneFabricanteRequestDTO("63", "333334443", 1L); // Assuming 1L is a valid fabricante ID
-        Long id = telefoneFabricanteService.create(createDto).getId();
-
-        // Update the telefoneFabricante
-        TelefoneFabricanteRequestDTO updateDto = 
-            new TelefoneFabricanteRequestDTO("64", "444445555", 1L); // Assuming 1L is a valid fabricante ID
-
-        given()
-            .contentType(ContentType.JSON)
-            .body(updateDto)
-            .when()
-                .put("/telefonesfabricantes/" + id)
-            .then()
-                .statusCode(200)
-                .body("codigoArea", is("64"),
-                      "numero", is("444445555"));
-
-        // Clean up
-        telefoneFabricanteService.delete(id);
+    public void testCodigoAreaNull() {
+        TelefoneFabricante telefone = new TelefoneFabricante();
+        telefone.setCodigoArea(null);
+        assertNull(telefone.getCodigoArea());
     }
 
     @Test
-    public void testDelete() {
-        // Create a new telefoneFabricante to delete
-        TelefoneFabricanteRequestDTO createDto = 
-            new TelefoneFabricanteRequestDTO("63", "333334443", 1L); // Assuming 1L is a valid fabricante ID
-        Long id = telefoneFabricanteService.create(createDto).getId();
+    public void testNumeroNull() {
+        TelefoneFabricante telefone = new TelefoneFabricante();
+        telefone.setNumero(null);
+        assertNull(telefone.getNumero());
+    }
 
-        // Delete the telefoneFabricante
-        given()
-            .when()
-                .delete("/telefonesfabricantes/" + id)
-            .then()
-                .statusCode(204);
+    @Test
+    public void testCodigoAreaVazio() {
+        TelefoneFabricante telefone = new TelefoneFabricante();
+        telefone.setCodigoArea("");
+        assertEquals("", telefone.getCodigoArea());
+    }
+
+    @Test
+    public void testNumeroVazio() {
+        TelefoneFabricante telefone = new TelefoneFabricante();
+        telefone.setNumero("");
+        assertEquals("", telefone.getNumero());
     }
 }

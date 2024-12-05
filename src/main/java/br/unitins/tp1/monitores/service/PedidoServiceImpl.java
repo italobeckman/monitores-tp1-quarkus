@@ -81,6 +81,10 @@ public class PedidoServiceImpl implements PedidoService {
         if (cliente == null) {
             throw new IllegalArgumentException("Cliente não encontrado para o username: " + username);
         }
+        if (!cliente.isCadastroCompleto()) {
+            throw new ValidationException("cliente", "Cadastro do cliente incompleto.");
+        }
+        
         pedido.setCliente(cliente);
         pedido.setData(LocalDateTime.now());
         pedido.setPrazoPagamento(LocalDateTime.now().plusSeconds(20));
@@ -122,6 +126,8 @@ public class PedidoServiceImpl implements PedidoService {
         pedido.setListaStatus(listaStatus);
 
         return PedidoResponseDTO.valueOf(pedido);
+    
+    
     }
 
     private List<ItemPedido> getItensFromDTO(List<ItemPedidoDTO> listaItemDTO, Pedido pedido) {
@@ -219,8 +225,11 @@ public class PedidoServiceImpl implements PedidoService {
     @Override
     @Transactional
     public BoletoResponseDTO gerarInformacoesBoleto(Long idPedido) {
+        Pedido pedido = pedidoRepository.findById(idPedido);
+        if(pedido == null) {
+            throw new ValidationException("idPedido", "Pedido não encontrado.");
+        }
         Double total = pedidoRepository.findById(idPedido).getTotal();
-
         Boleto boleto = new Boleto();
         boleto.setValor(total);
         boleto.setCodigo(UUID.randomUUID().toString());
@@ -242,6 +251,9 @@ public class PedidoServiceImpl implements PedidoService {
         }
 
         Pedido pedido = pedidoRepository.findById(idPedido);
+        if(pedido == null) {
+            throw new ValidationException("idPedido", "Pedido não encontrado.");
+        }
         Pix pix = (Pix) optionalPix.get();
 
         pedido.setPagamento(pix);
@@ -254,7 +266,14 @@ public class PedidoServiceImpl implements PedidoService {
     @Transactional
     public BoletoResponseDTO registrarPagamentoBoleto(Long idPedido, Long idBoleto) {
         Pedido pedido = pedidoRepository.findById(idPedido);
+        if (pedido == null) {
+            throw new ValidationException("idPedido", "Pedido não encontrado.");
+            
+        }
         Boleto boleto = (Boleto) pagamentoRepository.findById(idBoleto);
+        if(boleto == null) {
+            throw new ValidationException("idBoleto", "Boleto não encontrado.");
+        }
         pedido.setPagamento(boleto);
 
         updateStatusPedido(idPedido, 3);
@@ -265,14 +284,17 @@ public class PedidoServiceImpl implements PedidoService {
     @Transactional
     public CartaoResponseDTO registrarPagamentoCartao(Long idPedido, CartaoDTO cartaoDTO) {
         Pedido pedido = pedidoRepository.findById(idPedido);
-        updateStatusPedido(idPedido, 3);
-
+        if (pedido == null) {
+            throw new ValidationException("idPedido", "Pedido não encontrado.");
+            
+        }
         Cartao cartao = CartaoDTO.convertToCartao(cartaoDTO);
         cartao.setValor(pedido.getTotal());
-
+        updateStatusPedido(idPedido, 3);
+        
         pagamentoRepository.persist(cartao);
         pedido.setPagamento(cartao);
-
+        
         return new CartaoResponseDTO(cartao.getNumero().substring(cartao.getNumero().length() - 4));
     }
 
@@ -367,41 +389,29 @@ public class PedidoServiceImpl implements PedidoService {
     private static final Logger LOG = LoggerFactory.getLogger(MonitorService.class);
 
     @Scheduled(every = "60s")
-    @Transactional
-    public void atualizarPedidoExpirados() {
-        LocalDateTime now = LocalDateTime.now();
-        List<Pedido> pedidosExpirados = pedidoRepository.findPedidosExpirados(now);
+@Transactional
+public void atualizarPedidoExpirados() {
+    LocalDateTime now = LocalDateTime.now();
+    List<Pedido> pedidosExpirados = pedidoRepository.findPedidosExpirados(now);
 
-        if (pedidosExpirados != null) {
-            for (Pedido pedido : pedidosExpirados) {
-                boolean expirado = false;
-                for (StatusPedido statusPedido : pedido.getListaStatus()) { // Verifica se já não está expirado
-                    if (statusPedido.getStatus().getId() == 2) {
-                        LOG.info("Pedido com mudança de status para expirado: " + pedido.getId());
-                        expirado = true;
-                        break;
-                    }
-                }
-                if (expirado)
-                    continue;
-
+    if (pedidosExpirados != null && !pedidosExpirados.isEmpty()) { 
+        pedidosExpirados.stream()
+            .filter(pedido -> pedido.getListaStatus().stream() 
+                    .noneMatch(statusPedido -> statusPedido.getStatus().getId() == 2))
+            .forEach(pedido -> {
                 updateStatusPedido(pedido.getId(), 2); // 2 -> Pagamento Expirado
+                LOG.info("Pedido com mudança de status para expirado: " + pedido.getId());
 
-                // Devolvendo ao estoque
-                for (ItemPedido item : pedido.getListaItem()) {
-                    Long idLote = item.getLote().getId();
-                    Lote lote = loteRepository.findById(idLote);
-
-                    if (lote != null) {
-                        Integer novaQuantidade = lote.getQuantidade() + item.getQuantidade();
-                        lote.setQuantidade(novaQuantidade);
-                    }
-
-                }
-
-            }
-        }
+                pedido.getListaItem().stream() 
+                    .forEach(item -> {
+                        Lote lote = loteRepository.findById(item.getLote().getId());
+                        if (lote != null) {
+                            lote.setQuantidade(lote.getQuantidade() + item.getQuantidade());
+                        }
+                    });
+            });
     }
+}
 
     @Scheduled(every = "60s")
     @Transactional

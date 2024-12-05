@@ -5,6 +5,7 @@ import java.util.List;
 import br.unitins.tp1.monitores.dto.monitor.TamanhoMonitorRequestDTO;
 import br.unitins.tp1.monitores.model.TamanhoMonitor;
 import br.unitins.tp1.monitores.repository.TamanhoMonitorRepository;
+import br.unitins.tp1.monitores.validation.ValidationException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -29,6 +30,24 @@ public class TamanhoMonitorServiceImpl implements TamanhoMonitorService {
     @Override
     @Transactional
     public TamanhoMonitor create(@Valid TamanhoMonitorRequestDTO dto) {
+        if (dto == null) {
+            throw new ValidationException("dto", "DTO não pode ser nulo.");
+        }
+
+        if (dto.tamanho() == null) {
+            throw new ValidationException("tamanho", "Tamanho é obrigatório.");
+        }
+
+        if (dto.largura() == null || dto.largura().trim().isEmpty()) {
+            throw new ValidationException("largura", "Largura inválida.");
+        }
+        
+        if (dto.altura() == null || dto.altura().trim().isEmpty()) {
+            throw new ValidationException("altura", "Altura inválida.");
+        }
+        if (dto.peso() == null) {
+            throw new ValidationException("peso", "Peso inválido.");
+        }
         TamanhoMonitor tamanhoMonitor = new TamanhoMonitor();
 
         tamanhoMonitor.setTamanho(dto.tamanho());
@@ -43,6 +62,27 @@ public class TamanhoMonitorServiceImpl implements TamanhoMonitorService {
     @Override
     @Transactional
     public TamanhoMonitor update(Long id, TamanhoMonitorRequestDTO dto) {
+        if (id == null || id <= 0) {
+            throw new ValidationException("id", "ID inválido.");
+        }
+        if (dto == null) {
+            throw new ValidationException("dto", "DTO não pode ser nulo.");
+        }
+
+        if (dto.tamanho() == null) {
+            throw new ValidationException("tamanho", "Tamanho é obrigatório.");
+        }
+
+        if (dto.largura() == null || dto.largura().trim().isEmpty()) {
+            throw new ValidationException("largura", "Largura inválida.");
+        }
+        
+        if (dto.altura() == null || dto.altura().trim().isEmpty()) {
+            throw new ValidationException("altura", "Altura inválida.");
+        }
+        if (dto.peso() == null) {
+            throw new ValidationException("peso", "Peso inválido.");
+        }
         TamanhoMonitor tamanhoMonitor = tamanhoMonitorRepository.findById(id);
 
         tamanhoMonitor.setTamanho(dto.tamanho());
