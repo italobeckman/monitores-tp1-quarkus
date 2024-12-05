@@ -7,6 +7,7 @@ import br.unitins.tp1.monitores.model.Cliente;
 import br.unitins.tp1.monitores.model.EnderecoUser;
 import br.unitins.tp1.monitores.model.Sexo;
 import br.unitins.tp1.monitores.repository.ClienteRepository;
+import br.unitins.tp1.monitores.validation.ValidationException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -41,23 +42,51 @@ public class ClienteServiceImpl implements ClienteService {
     @Transactional
     public Cliente update(Long id, ClienteRequestDTO dto) {
         Cliente cliente = clienteRepository.findById(id);
+        if (cliente == null) {
+            throw new ValidationException("id", "Cliente não encontrado.");
+        }
+        if (dto.nome() == null || dto.nome().trim().isEmpty()) {
+            throw new ValidationException("nome", "Nome é obrigatório.");
+        }
 
+        if (dto.idSexo() == null || dto.idSexo() < 1 || dto.idSexo() > Sexo.values().length) {
+            throw new ValidationException("idSexo", "Sexo inválido.");
+        }
 
-        cliente.setNome(dto.nome()); // Usando nome()
-        cliente.setSexo(Sexo.valueOf(dto.idSexo())); // Usando getIdSexo()
-        cliente.setEmail(dto.email()); // Usando getEmail()
+        if (dto.email() == null || dto.email().trim().isEmpty()) {
+            throw new ValidationException("email", "Email é obrigatório.");
+        }
 
+        cliente.setNome(dto.nome()); 
+        cliente.setSexo(Sexo.valueOf(dto.idSexo())); 
+        cliente.setEmail(dto.email());
+
+        if (dto.enderecoUser() == null) {
+            throw new ValidationException("enderecoUser", "Endereço é obrigatório.");
+        }
+
+        if (dto.enderecoUser().getLogradouro() == null || dto.enderecoUser().getLogradouro().trim().isEmpty()) {
+            throw new ValidationException("logradouro", "Logradouro é obrigatório.");
+        }
+        if (dto.enderecoUser().getNumero() == null || dto.enderecoUser().getNumero().trim().isEmpty()) {
+            throw new ValidationException("numero", "Numero é obrigatório.");
+        }
+        if (dto.enderecoUser().getCep() == null || dto.enderecoUser().getCep().trim().isEmpty()) {
+            throw new ValidationException("cep", "Cep é obrigatório.");
+        }
+        if (dto.enderecoUser().getBairro() == null || dto.enderecoUser().getBairro().trim().isEmpty()) {
+            throw new ValidationException("bairro", "Bairro é obrigatório.");
+        }
         EnderecoUser enderecoUser = new EnderecoUser();
-        enderecoUser.setLogradouro(dto.enderecoUser().getLogradouro()); // Usando getLogradouro()
-        enderecoUser.setNumero(dto.enderecoUser().getNumero()); // Usando getNumero()
-        enderecoUser.setComplemento(dto.enderecoUser().getComplemento()); // Usando getComplemento()
-        enderecoUser.setCep(dto.enderecoUser().getCep()); // Usando getCep()
-        enderecoUser.setMunicipio(dto.enderecoUser().getMunicipio()); // Usando getCidade()
-        enderecoUser.setEstado(dto.enderecoUser().getEstado()); // Usando getEstado()
-        enderecoUser.setBairro(dto.enderecoUser().getBairro()); // Usando getBairro()
+        enderecoUser.setLogradouro(dto.enderecoUser().getLogradouro()); 
+        enderecoUser.setNumero(dto.enderecoUser().getNumero()); 
+        enderecoUser.setComplemento(dto.enderecoUser().getComplemento()); 
+        enderecoUser.setCep(dto.enderecoUser().getCep()); 
+        enderecoUser.setMunicipio(dto.enderecoUser().getMunicipio()); 
+        enderecoUser.setEstado(dto.enderecoUser().getEstado()); 
+        enderecoUser.setBairro(dto.enderecoUser().getBairro()); 
 
-        cliente.setEnderecoUser(enderecoUser); // Supondo que Cliente tenha um método setEnderecoUser
-
+        cliente.setEnderecoUser(enderecoUser); 
 
         return cliente;
     }
@@ -65,6 +94,10 @@ public class ClienteServiceImpl implements ClienteService {
     @Override
     @Transactional
     public void delete(Long id) {
+        if (id == null) {
+            throw new ValidationException("id", "Id não pode ser nulo");
+
+        }
         clienteRepository.deleteById(id);
     }
 
@@ -72,6 +105,10 @@ public class ClienteServiceImpl implements ClienteService {
     @Transactional
     public Cliente updateNomeImagem(Long id, String nomeImagem) {
         Cliente cliente = clienteRepository.findById(id);
+        if (cliente == null) {
+            throw new ValidationException("id", "Cliente não encontrado.");
+
+        }
         cliente.setNomeImagem(nomeImagem);
 
         return cliente;
@@ -79,6 +116,9 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     public Cliente findByUsername(String username) {
+        if (username == null || username.trim().isEmpty()) {
+            throw new ValidationException("username", "Username é obrigatório.");
+        }
         return clienteRepository.findByUsername(username);
     }
 }

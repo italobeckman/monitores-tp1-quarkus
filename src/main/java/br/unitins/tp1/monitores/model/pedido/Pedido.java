@@ -38,7 +38,7 @@ public class Pedido extends DefaultEntity{
     private List<ItemPedido> listaItem;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "id_pedido")
+    @JoinColumn(name = "id_pedidoStatus")
     private List<StatusPedido> listaStatus;
 
     @Column(name = "prazo_pagamento", nullable = false)

@@ -9,24 +9,32 @@ import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class PedidoRepository implements PanacheRepository<Pedido>{
-    public List<Pedido> findByCliente(Long idCliente){
+public class PedidoRepository implements PanacheRepository<Pedido> {
+    public List<Pedido> findByCliente(Long idCliente) {
         return find("WHERE cliente.id = ?1", idCliente).list();
     }
 
-    public List<Pedido> findByItem(Long idMonitor){
+    public List<Pedido> findByItem(Long idMonitor) {
         return find("JOIN listaItem l WHERE l.notebook.id = ?1 ", idMonitor).list();
     }
 
-    public List<Pedido> findByStatus(Integer idStatus){
+    public List<Pedido> findByStatus(Integer idStatus) {
         return find("JOIN listaStatus l WHERE l.status = ?1", Status.valueOf(idStatus)).list();
     }
 
-    public List<Pedido> findPedidosExpirados(LocalDateTime dataVerificacao){
+    public List<Pedido> findPedidosExpirados(LocalDateTime dataVerificacao) {
         return find("WHERE ?1 > prazoPagamento AND pagamento IS NULL", dataVerificacao).list();
     }
 
-    public List<Pedido> findByUsername(String username){
+    public List<Pedido> findByUsername(String username) {
         return find("SELECT p FROM Pedido p WHERE p.cliente.username = ?1", username).list();
     }
+
+    /* */
+    public List<Pedido> findPedidosStatusDiferente() {
+        return find("select distinct p from Pedido p, StatusPedido sp where sp.status not in (1,2)").list();      }
+    
+    
+    
+
 }

@@ -16,7 +16,7 @@ public class Funcionario extends DefaultEntity {
     private Sexo sexo;
     private String nomeImagem;
     private String email;
-    private String salario;
+    
     
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_usuario")
@@ -83,13 +83,7 @@ public class Funcionario extends DefaultEntity {
         this.enderecoUser = enderecoUser;
     }
 
-    public String getSalario() {
-        return salario;
-    }
-
-    public void setSalario(String salario) {
-        this.salario = salario;
-    }
+  
 
     public String getUsername() {
         return username;

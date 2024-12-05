@@ -21,7 +21,7 @@ public class Cartao extends Pagamento {
     private LocalDate dataValidade;
 
     @Column(name = "codigo_seguranca", nullable = false)
-    private Integer codigoSeguranca;
+    private String codigoSeguranca;
 
     public String getTitular() {
         return titular;
@@ -55,11 +55,11 @@ public class Cartao extends Pagamento {
         this.dataValidade = dataValidade;
     }
 
-    public Integer getCodigoSeguranca() {
+    public String getCodigoSeguranca() {
         return codigoSeguranca;
     }
 
-    public void setCodigoSeguranca(Integer codigoSeguranca) {
+    public void setCodigoSeguranca(String codigoSeguranca) {
         this.codigoSeguranca = codigoSeguranca;
     }
 }

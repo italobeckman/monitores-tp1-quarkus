@@ -29,7 +29,6 @@ public class TamanhoMonitorServiceImpl implements TamanhoMonitorService {
     @Override
     @Transactional
     public TamanhoMonitor create(@Valid TamanhoMonitorRequestDTO dto) {
-        // verificar se a sigla ja foi utilizada
         TamanhoMonitor tamanhoMonitor = new TamanhoMonitor();
 
         tamanhoMonitor.setTamanho(dto.tamanho());

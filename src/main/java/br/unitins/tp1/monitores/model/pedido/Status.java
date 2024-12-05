@@ -8,8 +8,7 @@ public enum Status {
     EXPIRADO(2, "Expirado por pagamento/Cancelado"),
     PAGAMENTO_CONFIRMADO(3, "Pagamento confirmado"),
     EM_TRANSITO(4, "Pedido em trânsito"),
-    ENTREGUE(5, "Pedido entregue"),
-    DEVOLVIDO(6, "Devolução do pedido após a entrega");
+    ENTREGUE(5, "Pedido entregue");
     
     private int id;
     private String descricao;

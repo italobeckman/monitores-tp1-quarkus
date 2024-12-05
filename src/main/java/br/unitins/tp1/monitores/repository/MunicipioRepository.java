@@ -11,7 +11,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 public class MunicipioRepository implements PanacheRepository<Municipio> {
     
     public List<Municipio> findByNome(String nome) {
-        // return find("SELECT m FROM Municipio m WHERE m.nome LIKE ?1", "%" + nome + "%").list();
+       
         return find("nome LIKE ?1", "%" + nome + "%").list();
     }
 

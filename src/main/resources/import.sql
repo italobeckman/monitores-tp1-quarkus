@@ -140,5 +140,5 @@ insert into EnderecoUser(logradouro, numero, complemento, bairro, cep, id_munici
 insert into Cliente(username, nome, cpf, email, sexo, id_endereco_user, id_usuario) values
 ('janio', 'Janio', '12345678901', 'janio@cliente.com', 2, 1, 1);
 
-insert into Funcionario(username, nome, cpf, email, sexo, id_endereco_funcionario, id_usuario, salario) values
-('janio', 'Janio', '12345678901', 'janio@cliente.com', 2, 1, 1, 40000);
+insert into Funcionario(username, nome, cpf, email, sexo, id_endereco_funcionario, id_usuario) values
+('janio', 'Janio', '12345678901', 'janio@cliente.com', 2, 1, 1);

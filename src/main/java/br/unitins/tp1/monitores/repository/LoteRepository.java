@@ -46,7 +46,7 @@ public class LoteRepository implements PanacheRepository<Lote> {
         return find(jpql.toString(), idMonitor).firstResult();
     }
 
-    // codigo nem sempre unico sendo por fabricante, ou seja, concatenar com o id do fabricante como exemplo --
+    
     public Lote findByCodigo(String codigo) {
         return find("SELECT l FROM Lote l WHERE l.codigo = ?1", codigo).firstResult();    
     }

@@ -6,10 +6,9 @@ import org.hibernate.validator.constraints.br.CPF;
 
 import br.unitins.tp1.monitores.model.pagamento.Cartao;
 import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record CartaoDTO(
@@ -31,9 +30,9 @@ public record CartaoDTO(
     LocalDate dataValidade,
 
     @NotNull(message = "O código de segurança não pode ser nulo. Informe o código corretamente.")
-    @Min(value = 3, message = "O código de segurança deve ter exatamente 3 dígitos. Verifique o código informado.")
-    @Max(value = 3, message = "O código de segurança deve ter exatamente 3 dígitos. Verifique o código informado.")
-    Integer codigoSeguranca
+    @Pattern(regexp = "^\\d{3,4}$", message = "O código de segurança deve ter 3 ou 4 dígitos.")
+    String  codigoSeguranca
+
 
     ) {
 

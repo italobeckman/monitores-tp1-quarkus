@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ import br.unitins.tp1.monitores.model.Monitor;
 import br.unitins.tp1.monitores.model.Municipio;
 import br.unitins.tp1.monitores.model.pagamento.Boleto;
 import br.unitins.tp1.monitores.model.pagamento.Cartao;
+import br.unitins.tp1.monitores.model.pagamento.Pagamento;
 import br.unitins.tp1.monitores.model.pagamento.Pix;
 import br.unitins.tp1.monitores.model.pedido.ItemPedido;
 import br.unitins.tp1.monitores.model.pedido.Pedido;
@@ -105,7 +107,6 @@ public class PedidoServiceImpl implements PedidoService {
         pedido.setEnderecoPedido(enderecoPedido);
         List<ItemPedido> listaItens = getItensFromDTO(dto.itens(), pedido);
 
-        // Salva o Pedido primeiro para gerar o ID
         if (listaItens == null || listaItens.isEmpty()) {
 
             throw new IllegalArgumentException("A lista de itens não pode estar vazia.");
@@ -113,10 +114,6 @@ public class PedidoServiceImpl implements PedidoService {
         pedido.setListaItem(listaItens);
         pedido.setTotal(calculateTotalPedido(listaItens));
         pedidoRepository.persist(pedido);
-
-        // Obtém os itens
-
-        // Associa a lista de itens ao pedido
 
         List<StatusPedido> listaStatus = Arrays.asList(createStatusPedido(1));
         if (listaStatus.isEmpty()) {
@@ -148,10 +145,16 @@ public class PedidoServiceImpl implements PedidoService {
             Integer subEstoque = itemDTO.quantidade();
 
             Lote lote = loteRepository.findByIdMonitor(itemDTO.idMonitor());
-            lote.setQuantidade(subEstoque - lote.getQuantidade());
+
+            if (lote.getQuantidade() < subEstoque) {
+                throw new ValidationException("idMonitor",
+                        "Não há estoque suficiente para o monitor com o id fornecido");
+            }
+            item.setLote(lote);
+            lote.setQuantidade(lote.getQuantidade() - subEstoque);
             listaItens.add(item);
         }
-        return listaItens; // Retorna a lista de ItemPedido
+        return listaItens;
     }
 
     @Override
@@ -183,28 +186,33 @@ public class PedidoServiceImpl implements PedidoService {
             throw new ValidationException("idPedido", "Pedido não encontrado");
         }
 
-        // Verifica se o status é válido
+      
         StatusPedido statusPedido = createStatusPedido(idStatus);
         if (statusPedido == null) {
             throw new ValidationException("idStatus", "Status inválido");
         }
 
-        // Adiciona o novo status à lista de status do pedido
+    
         pedido.getListaStatus().add(statusPedido);
     }
 
     @Override
     @Transactional
     public PixResponseDTO gerarInformacoesPix(Long idPedido) {
-
+        Pedido pedido = pedidoRepository.findById(idPedido);
+        if (pedido == null) {
+            throw new ValidationException("idPedido", "Pedido não encontrado");
+        }
         Double total = pedidoRepository.findById(idPedido).getTotal();
-
+        
         Pix pix = new Pix();
         pix.setValor(total);
         pix.setChaveDestinatario("Monitor_store@monitorStore.com");
         pix.setIdentificador(UUID.randomUUID().toString());
-
+        
         pagamentoRepository.persist(pix);
+        pedido.setPagamento(pix);
+        
         return PixResponseDTO.valueOf(pix);
     }
 
@@ -224,11 +232,21 @@ public class PedidoServiceImpl implements PedidoService {
     @Override
     @Transactional
     public PixResponseDTO registrarPagamentoPix(Long idPedido, Long idPix) {
-        Pedido pedido = pedidoRepository.findById(idPedido);
-        Pix pix = (Pix) pagamentoRepository.findById(idPix);
-        pedido.setPagamento(pix);
+        if (idPix == null || idPix <= 0) {
+            throw new ValidationException("idPix", "ID do Pix inválido.");
+        }
 
+        Optional<Pagamento> optionalPix = pagamentoRepository.findByIdOptional(idPix);
+        if (optionalPix.isEmpty()) {
+            throw new ValidationException("idPix", "Pagamento Pix não encontrado.");
+        }
+
+        Pedido pedido = pedidoRepository.findById(idPedido);
+        Pix pix = (Pix) optionalPix.get();
+
+        pedido.setPagamento(pix);
         updateStatusPedido(idPedido, 3);
+
         return PixResponseDTO.valueOf(pix);
     }
 
@@ -299,12 +317,12 @@ public class PedidoServiceImpl implements PedidoService {
 
     private Double calculateTotalPedido(List<ItemPedido> listaItem) {
         return listaItem.stream()
-                .mapToDouble(ItemPedido::getPreco) // Soma os preços dos itens
-                .sum(); // Retorna a soma total
+                .mapToDouble(ItemPedido::getPreco)
+                .sum();
     }
 
     private List<ItemPedido> getItensFromDTO(List<ItemPedidoDTO> listaItemDTO) {
-        validarListaItemDTO(listaItemDTO); // Certifique-se de que os itens são válidos
+        validarListaItemDTO(listaItemDTO); 
 
         List<ItemPedido> listaItens = new ArrayList<>();
         for (ItemPedidoDTO itemDTO : listaItemDTO) {
@@ -313,13 +331,11 @@ public class PedidoServiceImpl implements PedidoService {
             ItemPedido item = new ItemPedido();
             Monitor monitor = monitorRepository.findById(itemDTO.idMonitor());
 
-            // Certifique-se de que o monitor não é nulo
             if (monitor != null) {
                 item.setMonitor(monitor);
                 item.setQuantidade(itemDTO.quantidade());
-                // Calcule o preço total para este item
                 double precoTotal = monitor.getPreco() * itemDTO.quantidade();
-                item.setPreco(precoTotal); // Armazenar o preço total no ItemPedido
+                item.setPreco(precoTotal); 
             } else {
                 throw new ValidationException("idMonitor", "Monitor com o id fornecido não foi encontrado");
             }
@@ -350,7 +366,7 @@ public class PedidoServiceImpl implements PedidoService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MonitorService.class);
 
-    @Scheduled(every = "10s")
+    @Scheduled(every = "60s")
     @Transactional
     public void atualizarPedidoExpirados() {
         LocalDateTime now = LocalDateTime.now();
@@ -375,17 +391,47 @@ public class PedidoServiceImpl implements PedidoService {
                 for (ItemPedido item : pedido.getListaItem()) {
                     Long idLote = item.getLote().getId();
                     Lote lote = loteRepository.findById(idLote);
-                    
+
                     if (lote != null) {
                         Integer novaQuantidade = lote.getQuantidade() + item.getQuantidade();
                         lote.setQuantidade(novaQuantidade);
                     }
-
-
 
                 }
 
             }
         }
     }
+
+    @Scheduled(every = "60s")
+    @Transactional
+    public void atualizarPedidosPagos() {
+        List<Pedido> pedidos = pedidoRepository.findPedidosStatusDiferente();
+        if (pedidos == null) {
+            throw new IllegalArgumentException("Nao há pedidos com status 3 ou 4");
+        }
+
+        for (Pedido pedido : pedidos) {
+            boolean statusAtualizado = false;
+
+            for (StatusPedido statusPedido : pedido.getListaStatus()) {
+                if (statusPedido.getStatus().getId() == 3) { // Pagamento confirmado
+                    int proximoStatusId = statusPedido.getStatus().getId() + 1;
+                    if (proximoStatusId <= 5) {
+                        updateStatusPedido(pedido.getId(), proximoStatusId);
+                        LOG.info("Pedido com mudança de status para: " + proximoStatusId + " (ID: " + pedido.getId()
+                                + ")");
+                        statusAtualizado = true;
+                    }
+
+                }
+
+            }
+
+            if (statusAtualizado) {
+                pedidoRepository.persist(pedido);
+            }
+        }
+    }
+
 }

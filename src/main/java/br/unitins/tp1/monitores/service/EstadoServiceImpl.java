@@ -19,7 +19,14 @@ public class EstadoServiceImpl implements EstadoService {
 
     @Override
     public Estado findById(Long id) {
-        return estadoRepository.findById(id);
+        if (id == null) {
+            throw new ValidationException("id", "ID não pode ser nulo.");
+        }
+        Estado estado = estadoRepository.findById(id);
+        if (estado == null) {
+            throw new ValidationException("id", "Estado não encontrado.");
+        }
+        return estado;
     }
 
     @Override
@@ -35,7 +42,23 @@ public class EstadoServiceImpl implements EstadoService {
     @Override
     @Transactional
     public Estado create(@Valid EstadoRequestDTO dto) {
-        // verificar se a sigla ja foi utilizada
+        if (dto == null) {
+            throw new ValidationException("dto", "DTO não pode ser nulo.");
+        }
+
+        if (dto.nome() == null || dto.nome().trim().isEmpty()) {
+            throw new ValidationException("nome", "Nome é obrigatório.");
+        }
+
+        if (dto.sigla() == null || dto.sigla().trim().isEmpty()) {
+            throw new ValidationException("sigla", "Sigla é obrigatória.");
+        }
+
+        if (estadoRepository.findBySigla(dto.sigla()) != null) {
+            throw new ValidationException("sigla", "Sigla já utilizada.");
+        }
+
+
         validarSigla(dto.sigla());
         Estado estado = new Estado();
         estado.setNome(dto.nome());
@@ -55,7 +78,26 @@ public class EstadoServiceImpl implements EstadoService {
     @Override
     @Transactional
     public Estado update(Long id, EstadoRequestDTO dto) {
+        if (id == null) {
+            throw new ValidationException("id", "ID não pode ser nulo.");
+        }
+        if (dto == null) {
+            throw new ValidationException("dto", "DTO não pode ser nulo.");
+        }
+
+        if (dto.nome() == null || dto.nome().trim().isEmpty()) {
+            throw new ValidationException("nome", "Nome é obrigatório.");
+        }
+
+        if (dto.sigla() == null || dto.sigla().trim().isEmpty()) {
+            throw new ValidationException("sigla", "Sigla é obrigatória.");
+        }
+
         Estado estado = estadoRepository.findById(id);
+        if (estado == null) {
+            throw new ValidationException("id", "Estado não encontrado.");
+        }
+        
 
         estado.setNome(dto.nome());
         estado.setSigla(dto.sigla());
@@ -66,6 +108,9 @@ public class EstadoServiceImpl implements EstadoService {
     @Override
     @Transactional
     public void delete(Long id) {
+        if (id == null) {
+            throw new ValidationException("id", "ID não pode ser nulo.");
+        }
         estadoRepository.deleteById(id);
     }
 

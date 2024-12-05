@@ -7,8 +7,7 @@ public record FuncionarioResponseDTO(
     Long id, 
     String nome,
     String cpf,
-    Sexo sexo,
-    String salario
+    Sexo sexo
     ) {
 
 
@@ -17,8 +16,7 @@ public record FuncionarioResponseDTO(
             funcionario.getId(), 
             funcionario.getNome(),
             funcionario.getCpf(),
-            funcionario.getSexo(),
-            funcionario.getSalario());
+            funcionario.getSexo());
 
     };
 }

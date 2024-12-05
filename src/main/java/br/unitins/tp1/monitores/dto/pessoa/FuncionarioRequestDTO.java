@@ -13,7 +13,6 @@ public record FuncionarioRequestDTO(
     String email,
     @Min(value = 1, message = "O idSexo deve ser 1 ou 2.")
     @Max(value = 2, message = "O idSexo deve ser 1 ou 2.")
-    Integer idSexo,
-    @NotBlank(message = "O salario não pode ser nulo.")
-    String salario
+    Integer idSexo
+    
 ) {}

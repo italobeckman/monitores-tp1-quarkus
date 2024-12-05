@@ -8,7 +8,7 @@ public interface MonitorService {
 
     List<Monitor> findAll();
 
-    Monitor findById(Long Id);
+    Monitor findById(Long id);
 
     List<Monitor> findByModelo(String modelo);
     List<Monitor> findByMarca(String marca);

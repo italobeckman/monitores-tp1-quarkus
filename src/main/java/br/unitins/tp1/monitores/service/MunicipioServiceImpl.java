@@ -36,12 +36,12 @@ public class MunicipioServiceImpl implements MunicipioService {
     @Override
     @Transactional
     public Municipio create(MunicipioRequestDTO dto) {
-        // buscando o estado a partir de um id do municipio
+        
         Municipio municipio = new Municipio();
         municipio.setEstado(estadoService.findById(dto.idEstado()));
         municipio.setNome(dto.nome());
 
-        //salvando o municipio
+      
         municipioRepository.persist(municipio);
         
         return municipio;
@@ -54,7 +54,7 @@ public class MunicipioServiceImpl implements MunicipioService {
 
         municipio.setNome(dto.nome());
 
-        // buscando o estado a partir de um id do municipio
+        
         municipio.setEstado(estadoService.findById(dto.idEstado()));
 
         return municipio;

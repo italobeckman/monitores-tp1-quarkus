@@ -53,8 +53,8 @@ public class PedidoResource {
     @Inject
     UsuarioService usuarioService;
 
-    @POST // USER == CLIENTE
-    @RolesAllowed({ "User" }) // Permissões para criação de pedidos
+    @POST 
+    @RolesAllowed({ "User" }) 
     public Response create(@Valid PedidoDTO pedidoDTO, @Context SecurityContext securityContext) {
         String username = jwt.getSubject();
         LOG.info("Pedido gerado pelo cliente: {}", username);
@@ -133,7 +133,7 @@ public class PedidoResource {
     @POST
     @Path("/{id}/pagamento/pix")
     @RolesAllowed({ "User" })
-    public Response pagarComPix(@PathParam("id") Long idPedido, long idPix) {
+    public Response pagarComPix(@PathParam("id") Long idPedido, Long idPix) {
         LOG.info("Processando pagamento com PIX para o pedido ID: {}", idPedido);
         try {
             PixResponseDTO pixResponse = pedidoService.registrarPagamentoPix(idPedido, idPix);
@@ -161,7 +161,7 @@ public class PedidoResource {
     }
 
     @GET
-    @Path("/{id}/pagamento/pix")
+    @Path("/{id}/gerar/pix")
     @RolesAllowed({ "User" })
     public Response gerarPix(@PathParam("id") Long idPedido, @Context SecurityContext securityContext) {
         LOG.info("Gerando informações de PIX para o pedido ID: {}", idPedido);
@@ -176,7 +176,7 @@ public class PedidoResource {
     }
 
     @GET
-    @Path("/{id}/pagamento/boleto")
+    @Path("/{id}/gerar/boleto")
     @RolesAllowed({ "User" })
     public Response gerarBoleto(@PathParam("id") Long idPedido, @Context SecurityContext securityContext) {
         LOG.info("Gerando informações de boleto para o pedido ID: {}", idPedido);
