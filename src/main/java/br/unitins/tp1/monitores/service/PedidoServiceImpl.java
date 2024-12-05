@@ -413,7 +413,7 @@ public void atualizarPedidoExpirados() {
     }
 }
 
-    @Scheduled(every = "60s")
+    @Scheduled(every = "10s")
     @Transactional
     public void atualizarPedidosPagos() {
         List<Pedido> pedidos = pedidoRepository.findPedidosStatusDiferente();

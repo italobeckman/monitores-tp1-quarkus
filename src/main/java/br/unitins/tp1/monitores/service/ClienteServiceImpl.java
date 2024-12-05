@@ -5,8 +5,12 @@ import java.util.List;
 import br.unitins.tp1.monitores.dto.pessoa.ClienteRequestDTO;
 import br.unitins.tp1.monitores.model.Cliente;
 import br.unitins.tp1.monitores.model.EnderecoUser;
+import br.unitins.tp1.monitores.model.Estado;
+import br.unitins.tp1.monitores.model.Municipio;
 import br.unitins.tp1.monitores.model.Sexo;
 import br.unitins.tp1.monitores.repository.ClienteRepository;
+import br.unitins.tp1.monitores.repository.EstadoRepository;
+import br.unitins.tp1.monitores.repository.MunicipioRepository;
 import br.unitins.tp1.monitores.validation.ValidationException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -17,6 +21,15 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Inject
     public ClienteRepository clienteRepository;
+
+    @Inject
+    public EstadoRepository estadoRepository;
+
+    @Inject
+    public MunicipioRepository municipioRepository;
+
+
+
 
     @Override
     public Cliente findById(Long id) {
@@ -64,6 +77,15 @@ public class ClienteServiceImpl implements ClienteService {
             throw new ValidationException("enderecoUser", "Endereço é obrigatório.");
         }
 
+        Estado estado = estadoRepository.findById(dto.enderecoUser().getEstado().getId());
+        Municipio municipio = municipioRepository.findById(dto.enderecoUser().getMunicipio().getId());
+
+        if( estado == null || dto.enderecoUser().getEstado() == null) {
+            throw new ValidationException("estado", "Estado é obrigatório.");
+        }
+        if(municipio == null || dto.enderecoUser().getMunicipio() == null) {
+            throw new ValidationException("municipio", "Município é obrigatório.");
+        }
         if (dto.enderecoUser().getLogradouro() == null || dto.enderecoUser().getLogradouro().trim().isEmpty()) {
             throw new ValidationException("logradouro", "Logradouro é obrigatório.");
         }
@@ -84,9 +106,10 @@ public class ClienteServiceImpl implements ClienteService {
         enderecoUser.setMunicipio(dto.enderecoUser().getMunicipio()); 
         enderecoUser.setEstado(dto.enderecoUser().getEstado()); 
         enderecoUser.setBairro(dto.enderecoUser().getBairro()); 
+        
 
         cliente.setEnderecoUser(enderecoUser); 
-
+        clienteRepository.getEntityManager().merge(cliente);
         return cliente;
     }
 

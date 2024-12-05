@@ -1,5 +1,6 @@
 package br.unitins.tp1.monitores.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -21,7 +22,7 @@ public class Cliente extends DefaultEntity {
     @JoinColumn(name = "id_usuario")
     private Usuario usuario;
     
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "id_endereco_user")
     private EnderecoUser enderecoUser;
 
