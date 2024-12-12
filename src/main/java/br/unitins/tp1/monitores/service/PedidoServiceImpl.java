@@ -396,7 +396,7 @@ public class PedidoServiceImpl implements PedidoService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MonitorService.class);
 
-    @Scheduled(every = "60s")
+    @Scheduled(every = "3000s")
     @Transactional
     public void atualizarPedidoExpirados() {
         LocalDateTime now = LocalDateTime.now();

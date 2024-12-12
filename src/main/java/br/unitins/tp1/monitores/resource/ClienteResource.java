@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.logging.Logger;
 
 import br.unitins.tp1.monitores.dto.pessoa.ClienteRequestDTO;
 import br.unitins.tp1.monitores.dto.pessoa.ClienteResponseDTO;
@@ -35,7 +35,7 @@ import jakarta.ws.rs.core.Response.Status;
 @Consumes(MediaType.APPLICATION_JSON)
 public class ClienteResource {
 
-    private static final Logger logger = LoggerFactory.getLogger(ClienteResource.class);
+    private static final Logger logger = Logger.getLogger(ClienteResource.class.getName());
     @Inject
     JsonWebToken jwt;
     @Inject
@@ -48,9 +48,9 @@ public class ClienteResource {
     @RolesAllowed({ "Adm", "Master" })
     @Path("/search/id/{id}")
     public Response findById(@PathParam("id") Long id) {
-        logger.info("Buscando cliente com ID: ", id);
+        logger.info("Buscando cliente com ID: "+ id);
         Response response = Response.ok(ClienteResponseDTO.valueOf(clienteService.findById(id))).build();
-        logger.info("Cliente encontrado: {}", response.getEntity());
+        logger.info("Cliente encontrado: {}"+ response.getEntity());
         return response;
     }
 
@@ -71,7 +71,7 @@ public class ClienteResource {
         logger.info("Buscando todos os clientes");
         Response response = Response
                 .ok(clienteService.findAll().stream().map(o -> ClienteResponseDTO.valueOf(o)).toList()).build();
-        logger.info("Total de clientes encontrados: ", ((List<?>) response.getEntity()).size());
+        logger.info("Total de clientes encontrados: "+ ((List<?>) response.getEntity()).size());
         return response;
     }
 
@@ -107,9 +107,9 @@ public class ClienteResource {
     @DELETE
     @Path("/delete/id/{id}")
     public Response delete(@PathParam("id") Long id) {
-        logger.info("Deletando cliente com ID: {}", id);
+        logger.info("Deletando cliente com ID: {}"+ id);
         clienteService.delete(id);
-        logger.info("Cliente com ID: {} deletado com sucesso", id);
+        logger.info("Cliente com ID: {} deletado com sucesso"+ id);
         return Response.noContent().build();
     }
 
@@ -119,12 +119,12 @@ public class ClienteResource {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response uploadImage(@PathParam("id") Long id, @MultipartForm ImageForm form) {
         try {
-            logger.info("Fazendo upload da imagem para o cliente com ID: {}", id);
+            logger.info("Fazendo upload da imagem para o cliente com ID: {}"+ id);
             String nomeImagem = clienteFileService.save(form.getNomeImagem(), form.getImagem());
             clienteService.updateNomeImagem(id, nomeImagem);
-            logger.info("Imagem '{}' carregada com sucesso para o cliente com ID: {}", nomeImagem, id);
+            logger.info("Imagem '{}' carregada com sucesso para o cliente com ID: {}"+ nomeImagem+" "+ id);
         } catch (IOException e) {
-            logger.error("Erro ao fazer upload da imagem para o cliente com ID: {}", id, e);
+            logger.severe("Erro ao fazer upload da imagem para o cliente com ID: {}"+ id+" "+ e);
             return Response.status(500).build();
         }
         return Response.noContent().build();
@@ -135,10 +135,10 @@ public class ClienteResource {
     @Path("/download/imagem/{nomeImagem}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response downloadImage(@PathParam("nomeImagem") String nomeImagem) {
-        logger.info("Fazendo download da imagem: {}", nomeImagem);
+        logger.info("Fazendo download da imagem: {}"+ nomeImagem);
         ResponseBuilder response = Response.ok(clienteFileService.find(nomeImagem));
         response.header("Content-Disposition", "attachment; filename=" + nomeImagem);
-        logger.info("Imagem '{}' preparada para download", nomeImagem);
+        logger.info("Imagem '{}' preparada para download"+ nomeImagem);
         return response.build();
     }
     /* 

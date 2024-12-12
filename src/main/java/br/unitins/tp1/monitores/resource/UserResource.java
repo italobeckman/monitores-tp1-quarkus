@@ -3,8 +3,9 @@ package br.unitins.tp1.monitores.resource;
 import java.util.List;
 
 import org.eclipse.microprofile.jwt.JsonWebToken;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.logging.Logger;
+
 
 import br.unitins.tp1.monitores.dto.usuario.UsuarioCreateRequestDTO;
 import br.unitins.tp1.monitores.dto.usuario.UsuarioResponseDTO;
@@ -31,7 +32,7 @@ import jakarta.ws.rs.core.Response.Status;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class UserResource {
-    private static final Logger LOG = LoggerFactory.getLogger(UserResource.class);
+    private static final Logger LOG = Logger.getLogger(PedidoResource.class.getName());
 
     @Inject
     UsuarioService usuarioService;
@@ -43,25 +44,25 @@ public class UserResource {
     @Path("/search/{id}")
     @RolesAllowed("Adm") 
     public Response findById(@PathParam("id") Long id) {
-        LOG.info("Buscando usuário por ID: %d", id);
+        LOG.info("Buscando usuário por ID: %d"+ id);
         Usuario usuario = usuarioService.findById(id);
         if (usuario == null) {
-            LOG.warn("Usuário com ID %d não encontrado.", id);
+            LOG.warning("Usuário com ID %d não encontrado."+ id);
             return Response.status(Status.NOT_FOUND).build();
         }
-        LOG.info("Usuário com ID %d encontrado com sucesso.", id);
+        LOG.info("Usuário com ID %d encontrado com sucesso."+ id);
         return Response.ok(UsuarioResponseDTO.valueOf(usuario)).build();
     }
 
     @POST 
     public Response create(@Valid UsuarioCreateRequestDTO dto) {
         if(dto == null) {
-            LOG.error("Requisição inválida.");
+            LOG.severe("Requisição inválida.");
             return Response.status(Status.BAD_REQUEST).entity("Requisição inválida.").build();
         }
         LOG.info("Criando novo usuário.");
         Usuario usuario = usuarioService.create(dto);
-        LOG.info("Usuário criado com sucesso. ID: %d", usuario.getId());
+        LOG.info("Usuário criado com sucesso. ID: %d"+ usuario.getId());
         return Response.status(Status.CREATED).entity(UsuarioResponseDTO.valueOf(usuario)).build();
     }
 
@@ -70,20 +71,20 @@ public class UserResource {
     @RolesAllowed({"Adm", "User"})
     public Response update(@Valid UsuarioUpdateRequestDTO dto) {
         if(dto == null) {
-            LOG.error("Requisição inválida.");
+            LOG.severe("Requisição inválida.");
             return Response.status(Status.BAD_REQUEST).entity("Requisição inválida.").build();
         }
         String username = jwt.getSubject();
         Long id = usuarioService.findByUsername(username).getId();
 
-        LOG.info("Atualizando usuário com ID: ", id);
+        LOG.info("Atualizando usuário com ID: "+ id);
 
         try {
             usuarioService.update(username, dto);
             LOG.info("Usuário atualizado com sucesso");
             return Response.noContent().build();
         } catch (ValidationException e) {
-            LOG.error("Erro ao atualizar usuário", e.getMessage());
+            LOG.severe("Erro ao atualizar usuário"+ e.getMessage());
             return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
     }
@@ -92,13 +93,13 @@ public class UserResource {
     @Path("/{id}")
     @RolesAllowed({"Adm", "User"})
     public Response delete(@PathParam("id") Long id) {
-        LOG.info("Excluindo usuário com ID: %d", id);
+        LOG.info("Excluindo usuário com ID: %d"+ id);
         try {
             usuarioService.delete(id);
-            LOG.info("Usuário com ID %d excluído com sucesso.", id);
+            LOG.info("Usuário com ID %d excluído com sucesso."+ id);
             return Response.status(Status.NO_CONTENT).build();
         } catch (ValidationException e) {
-            LOG.error("Erro ao excluir usuário com ID %d: %s", id, e.getMessage());
+            LOG.severe("Erro ao excluir usuário com ID %d: %s"+ id+","+ e.getMessage());
             return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 
         }
@@ -109,7 +110,7 @@ public class UserResource {
     public Response findAll() {
         LOG.info("Buscando todos os usuários.");
         List<Usuario> usuarios = usuarioService.findAll();
-        LOG.info("Encontrados %d usuários.", usuarios.size());
+        LOG.info("Encontrados %d usuários."+ usuarios.size());
 
         
         List<UsuarioResponseDTO> usuariosDTO = usuarios.stream()
