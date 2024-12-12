@@ -63,6 +63,10 @@ public class FuncionarioResource {
     @RolesAllowed({ "Adm" })
     @POST
     public Response create(@Valid FuncionarioRequestDTO dto) {
+        if(dto == null) {
+            
+            return Response.status(Status.BAD_REQUEST).entity("Dados inválidos.").build();
+        }
         logger.info("Criando novo funcionario: {}", dto);
         Response response = Response.status(Status.CREATED)
                 .entity(FuncionarioResponseDTO.valueOf(funcionarioService.create(dto))).build();
@@ -73,6 +77,9 @@ public class FuncionarioResource {
     @PUT
     @Path("/{id}")
     public Response update(@PathParam("id") Long id, @Valid FuncionarioRequestDTO dto) {
+        if(dto == null) {
+            return Response.status(Status.BAD_REQUEST).entity("Dados inválidos.").build();
+        }
         logger.info("Atualizando funcionario com ID: "+id+" com dados: ", id, dto);
         funcionarioService.update(id, dto);
         logger.info("Funcionario com ID: {} atualizado com sucesso", id);

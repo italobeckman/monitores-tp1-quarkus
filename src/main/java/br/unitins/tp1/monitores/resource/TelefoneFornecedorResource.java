@@ -35,7 +35,7 @@ public class TelefoneFornecedorResource {
     public TelefoneFornecedorService telefoneFornecedorService;
     @RolesAllowed({ "Adm", "User" })
     @GET
-    @Path("/search/{id}")
+    @Path("/search/id/{id}")
     public Response findById(@PathParam("id") Long id) {
         LOG.info("Buscando telefone do fornecedor com ID: {}", id);
         
@@ -43,14 +43,13 @@ public class TelefoneFornecedorResource {
     }
     @RolesAllowed({ "Adm", "User" })
     @GET
-    @Path("/search/{numero}")
+    @Path("/search/numero/{numero}")
     public Response findByNumero(@PathParam("numero") String numero) {
         LOG.info("Buscando telefone do fornecedor com número: {}", numero);
         return Response.ok(TelefoneFornecedorResponseDTO.valueOf(telefoneFornecedorService.findByNumero(numero))).build();
     }
     @RolesAllowed({ "Adm" })
     @GET
-    @Path("/search/all")
     public Response findAll() {
         LOG.info("Buscando todos os telefones de fornecedors.");
 
@@ -59,7 +58,11 @@ public class TelefoneFornecedorResource {
     }
     @RolesAllowed({ "Adm" })
     @POST
+    @Path("/create")
     public Response create(@Valid TelefoneFornecedorRequestDTO telefone) {
+        if(telefone == null) {
+            return Response.status(Status.BAD_REQUEST).entity("Dados inválidos.").build();
+        }
         LOG.info("Criando novo telefone de fornecedor: {}", telefone);
         
         return Response.status(Status.CREATED)
@@ -67,8 +70,11 @@ public class TelefoneFornecedorResource {
     }
     @RolesAllowed({ "Adm" })
     @PUT
-    @Path("update/{id}")
+    @Path("update/id/{id}")
     public Response update(@PathParam("id") Long id, @Valid TelefoneFornecedorRequestDTO telefone) {
+        if(telefone == null){
+            return Response.status(Status.BAD_REQUEST).entity("Dados inválidos.").build();
+        }
         LOG.info("Atualizando telefone do fornecedor com ID: {} com os dados: {}", id, telefone);
 
         try {
@@ -83,7 +89,7 @@ public class TelefoneFornecedorResource {
     
     @RolesAllowed({ "Adm" })
     @DELETE
-    @Path("delete/{id}")
+    @Path("delete/id/{id}")
     public Response delete(@PathParam("id") Long id) {
         LOG.info("Deletando telefone do fornecedor com ID: {}", id);
         try {

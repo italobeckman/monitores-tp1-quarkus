@@ -21,5 +21,7 @@ public interface ClienteService {
     void delete(Long id);
     Cliente findByUsername(String username);
     Cliente updateNomeImagem(Long id, String nomeImagem);
+
+    // Cliente create(ClienteRequestDTO dto);
     
 }

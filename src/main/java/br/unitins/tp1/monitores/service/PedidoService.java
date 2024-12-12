@@ -8,6 +8,7 @@ import br.unitins.tp1.monitores.dto.pagamento.CartaoResponseDTO;
 import br.unitins.tp1.monitores.dto.pagamento.PixResponseDTO;
 import br.unitins.tp1.monitores.dto.pedido.PedidoDTO;
 import br.unitins.tp1.monitores.dto.pedido.PedidoResponseDTO;
+import br.unitins.tp1.monitores.dto.pedido.PedidoSimplesResponseDTO;
 import jakarta.validation.Valid;
 
 public interface PedidoService {
@@ -23,6 +24,9 @@ public interface PedidoService {
     PedidoResponseDTO findById(Long id);
     List<PedidoResponseDTO> findAll();
     List<PedidoResponseDTO> findByCliente(Long id);
+
+    List<PedidoSimplesResponseDTO> findBySimplesUsername(String username);
+
     List<PedidoResponseDTO> findByUsername(String username);
 
     List<PedidoResponseDTO> findByStatus(Integer idStatus);

@@ -48,6 +48,9 @@ public class AuthResource {
     @POST
     @Produces(MediaType.TEXT_PLAIN)
     public Response login(AuthRequestDTO authDTO) {
+        if(authDTO == null) {
+            return Response.status(Status.BAD_REQUEST).entity("Usuário ou senha inválidos").build();
+        }
         logger.info("Tentativa de login efetuado por:  " + authDTO.username());
         String hash = hashService.getHashSenha(authDTO.senha());
         logger.fine("Hash de senha gerado ");
@@ -55,7 +58,7 @@ public class AuthResource {
         Usuario usuario = usuarioService.findByUsernameAndSenha(authDTO.username(), hash);
         
         if (usuario == null) {
-            logger.warning("User  not found: " + authDTO.username());
+            logger.warning("Usuario nao encontrado: " + authDTO.username());
             return Response.status(Status.UNAUTHORIZED).entity("Usuário ou senha inválidos").build();
         }
 

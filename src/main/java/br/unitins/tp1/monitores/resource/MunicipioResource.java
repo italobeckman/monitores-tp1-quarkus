@@ -35,7 +35,7 @@ public class MunicipioResource {
     public MunicipioService municipioService;
     @RolesAllowed({ "Adm" })
     @GET
-    @Path("/{id}")
+    @Path("/search/id/{id}")
     public Response findById(@PathParam("id") Long id) {
         LOG.info("Buscando município com ID: {}", id);
         Municipio municipio = municipioService.findById(id);
@@ -48,13 +48,15 @@ public class MunicipioResource {
     }
     @RolesAllowed({ "Adm" })
     @GET
-    @Path("/search/{nome}")
+    @Path("/search/nome/{nome}")
     public Response findByNome(@PathParam("nome") String nome) {
         LOG.info("Buscando municípios com nome: {}", nome);
         List<Municipio> municipios = municipioService.findByNome(nome);
         LOG.info("Encontrados {} municípios com o nome: {}", municipios.size(), nome);
         return Response.ok(municipios.stream().map(MunicipioResponseDTO::valueOf).toList()).build();
     }
+
+
     @RolesAllowed({ "Adm" })
     @GET
     public Response findAll() {
@@ -65,7 +67,12 @@ public class MunicipioResource {
     }
     @RolesAllowed({ "Adm" })
     @POST
+    @Path("/create")
     public Response create(@Valid MunicipioRequestDTO municipioDTO) {
+        if(municipioDTO == null) {
+            LOG.error("Erro ao tentar criar um novo município. Dados inválidos.");
+            return Response.status(Status.BAD_REQUEST).entity("Dados inválidos.").build();
+        }
         LOG.info("Criando novo município: {}", municipioDTO);
         Municipio created = municipioService.create(municipioDTO);
         LOG.info("Município criado com sucesso: {}", MunicipioResponseDTO.valueOf(created));
@@ -73,8 +80,11 @@ public class MunicipioResource {
     }
     @RolesAllowed({ "Adm" })
     @PUT
-    @Path("/{id}")
+    @Path("/update/id/{id}")
     public Response update(@PathParam("id") Long id, @Valid MunicipioRequestDTO municipioDTO) {
+        if(municipioDTO == null) {
+            return Response.status(Status.BAD_REQUEST).entity("Dados inválidos.").build();
+        }
         LOG.info("Atualizando município com ID: {} com os dados: {}", id, municipioDTO);
         try {
             municipioService.update(id, municipioDTO);
@@ -87,7 +97,7 @@ public class MunicipioResource {
     }
     @RolesAllowed({ "Adm" })
     @DELETE
-    @Path("/{id}")
+    @Path("/delete/id/{id}")
     public Response delete(@PathParam("id") Long id) {
         LOG.info("Deletando município com ID: {}", id);
 

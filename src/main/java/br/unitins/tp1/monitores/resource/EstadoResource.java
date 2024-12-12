@@ -33,7 +33,7 @@ public class EstadoResource {
     public EstadoService estadoService;
     
     @GET
-    @Path("/search/{id}")
+    @Path("/search/id/{id}")
     @RolesAllowed({"Adm"})
     public Response findById(@PathParam("id") Long id) {
         LOG.info("Buscando estado com ID: " + id);
@@ -47,8 +47,9 @@ public class EstadoResource {
     }
     @RolesAllowed({ "Adm" })
     @GET
-    @Path("/search/{nome}")
+    @Path("/search/nome/{nome}")
     public Response findByNome(@PathParam("nome") String nome) {
+
         LOG.info("Buscando estados com nome: " + nome);
         List<Estado> estados = estadoService.findByNome(nome);
         LOG.info("Encontrados " + estados.size() + " estados com nome: " + nome);
@@ -64,7 +65,11 @@ public class EstadoResource {
     }
     @RolesAllowed({ "Adm" })
     @POST
+    @Path("/create")
     public Response create(EstadoRequestDTO estado) {
+        if(estado == null) {
+            return Response.status(Status.BAD_REQUEST).entity("Dados inválidos.").build();
+        }
         LOG.info("Criando novo estado: " + estado);
         Estado created = estadoService.create(estado);
 
@@ -80,8 +85,11 @@ public class EstadoResource {
     }
     @RolesAllowed({ "Adm" })
     @PUT
-    @Path("/{id}")
+    @Path("update/id/{id}")
     public Response update(@PathParam("id") Long id, EstadoRequestDTO estado) {
+        if(estado == null) {
+            return Response.status(Status.BAD_REQUEST).entity("Dados inválidos.").build();
+        }
         LOG.info("Atualizando estado com ID: " + id + ", com dados: " + estado);
         try {
             estadoService.update(id, estado);
@@ -95,7 +103,7 @@ public class EstadoResource {
     }
     @RolesAllowed({ "Adm" })
     @DELETE
-    @Path("/{id}")
+    @Path("delete/id/{id}")
     public Response delete(@PathParam("id") Long id) {
         LOG.info("Deletando estado com ID: " + id);
 

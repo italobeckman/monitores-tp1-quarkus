@@ -16,6 +16,7 @@ import br.unitins.tp1.monitores.dto.pagamento.CartaoResponseDTO;
 import br.unitins.tp1.monitores.dto.pagamento.PixResponseDTO;
 import br.unitins.tp1.monitores.dto.pedido.PedidoDTO;
 import br.unitins.tp1.monitores.dto.pedido.PedidoResponseDTO;
+import br.unitins.tp1.monitores.dto.pedido.PedidoSimplesResponseDTO;
 import br.unitins.tp1.monitores.dto.pedido.item_pedido.ItemPedidoDTO;
 import br.unitins.tp1.monitores.model.Cliente;
 import br.unitins.tp1.monitores.model.EnderecoPedido;
@@ -84,7 +85,7 @@ public class PedidoServiceImpl implements PedidoService {
         if (!cliente.isCadastroCompleto()) {
             throw new ValidationException("cliente", "Cadastro do cliente incompleto.");
         }
-        
+
         pedido.setCliente(cliente);
         pedido.setData(LocalDateTime.now());
         pedido.setPrazoPagamento(LocalDateTime.now().plusSeconds(20));
@@ -126,8 +127,7 @@ public class PedidoServiceImpl implements PedidoService {
         pedido.setListaStatus(listaStatus);
 
         return PedidoResponseDTO.valueOf(pedido);
-    
-    
+
     }
 
     private List<ItemPedido> getItensFromDTO(List<ItemPedidoDTO> listaItemDTO, Pedido pedido) {
@@ -192,13 +192,11 @@ public class PedidoServiceImpl implements PedidoService {
             throw new ValidationException("idPedido", "Pedido não encontrado");
         }
 
-      
         StatusPedido statusPedido = createStatusPedido(idStatus);
         if (statusPedido == null) {
             throw new ValidationException("idStatus", "Status inválido");
         }
 
-    
         pedido.getListaStatus().add(statusPedido);
     }
 
@@ -210,15 +208,15 @@ public class PedidoServiceImpl implements PedidoService {
             throw new ValidationException("idPedido", "Pedido não encontrado");
         }
         Double total = pedidoRepository.findById(idPedido).getTotal();
-        
+
         Pix pix = new Pix();
         pix.setValor(total);
         pix.setChaveDestinatario("Monitor_store@monitorStore.com");
         pix.setIdentificador(UUID.randomUUID().toString());
-        
+
         pagamentoRepository.persist(pix);
         pedido.setPagamento(pix);
-        
+
         return PixResponseDTO.valueOf(pix);
     }
 
@@ -226,7 +224,7 @@ public class PedidoServiceImpl implements PedidoService {
     @Transactional
     public BoletoResponseDTO gerarInformacoesBoleto(Long idPedido) {
         Pedido pedido = pedidoRepository.findById(idPedido);
-        if(pedido == null) {
+        if (pedido == null) {
             throw new ValidationException("idPedido", "Pedido não encontrado.");
         }
         Double total = pedidoRepository.findById(idPedido).getTotal();
@@ -251,7 +249,7 @@ public class PedidoServiceImpl implements PedidoService {
         }
 
         Pedido pedido = pedidoRepository.findById(idPedido);
-        if(pedido == null) {
+        if (pedido == null) {
             throw new ValidationException("idPedido", "Pedido não encontrado.");
         }
         Pix pix = (Pix) optionalPix.get();
@@ -268,10 +266,10 @@ public class PedidoServiceImpl implements PedidoService {
         Pedido pedido = pedidoRepository.findById(idPedido);
         if (pedido == null) {
             throw new ValidationException("idPedido", "Pedido não encontrado.");
-            
+
         }
         Boleto boleto = (Boleto) pagamentoRepository.findById(idBoleto);
-        if(boleto == null) {
+        if (boleto == null) {
             throw new ValidationException("idBoleto", "Boleto não encontrado.");
         }
         pedido.setPagamento(boleto);
@@ -286,15 +284,15 @@ public class PedidoServiceImpl implements PedidoService {
         Pedido pedido = pedidoRepository.findById(idPedido);
         if (pedido == null) {
             throw new ValidationException("idPedido", "Pedido não encontrado.");
-            
+
         }
         Cartao cartao = CartaoDTO.convertToCartao(cartaoDTO);
         cartao.setValor(pedido.getTotal());
         updateStatusPedido(idPedido, 3);
-        
+
         pagamentoRepository.persist(cartao);
         pedido.setPagamento(cartao);
-        
+
         return new CartaoResponseDTO(cartao.getNumero().substring(cartao.getNumero().length() - 4));
     }
 
@@ -323,6 +321,16 @@ public class PedidoServiceImpl implements PedidoService {
                 .map(PedidoResponseDTO::valueOf)
                 .toList();
     }
+    @Override
+    public List<PedidoSimplesResponseDTO> findBySimplesUsername(String username) {
+        Cliente cliente = clienteRepository.findByUsername(username);
+        if (cliente == null) {
+            throw new ValidationException("Username", "Cliente não encontrado para o username fornecido.");
+        }
+        return pedidoRepository.findByCliente(cliente.getId()).stream()
+                .map(PedidoSimplesResponseDTO::valueOf)
+                .toList();
+    }
 
     @Override
     public List<PedidoResponseDTO> findByStatus(Integer idStatus) {
@@ -344,7 +352,7 @@ public class PedidoServiceImpl implements PedidoService {
     }
 
     private List<ItemPedido> getItensFromDTO(List<ItemPedidoDTO> listaItemDTO) {
-        validarListaItemDTO(listaItemDTO); 
+        validarListaItemDTO(listaItemDTO);
 
         List<ItemPedido> listaItens = new ArrayList<>();
         for (ItemPedidoDTO itemDTO : listaItemDTO) {
@@ -357,7 +365,7 @@ public class PedidoServiceImpl implements PedidoService {
                 item.setMonitor(monitor);
                 item.setQuantidade(itemDTO.quantidade());
                 double precoTotal = monitor.getPreco() * itemDTO.quantidade();
-                item.setPreco(precoTotal); 
+                item.setPreco(precoTotal);
             } else {
                 throw new ValidationException("idMonitor", "Monitor com o id fornecido não foi encontrado");
             }
@@ -389,31 +397,31 @@ public class PedidoServiceImpl implements PedidoService {
     private static final Logger LOG = LoggerFactory.getLogger(MonitorService.class);
 
     @Scheduled(every = "60s")
-@Transactional
-public void atualizarPedidoExpirados() {
-    LocalDateTime now = LocalDateTime.now();
-    List<Pedido> pedidosExpirados = pedidoRepository.findPedidosExpirados(now);
+    @Transactional
+    public void atualizarPedidoExpirados() {
+        LocalDateTime now = LocalDateTime.now();
+        List<Pedido> pedidosExpirados = pedidoRepository.findPedidosExpirados(now);
 
-    if (pedidosExpirados != null && !pedidosExpirados.isEmpty()) { 
-        pedidosExpirados.stream()
-            .filter(pedido -> pedido.getListaStatus().stream() 
-                    .noneMatch(statusPedido -> statusPedido.getStatus().getId() == 2))
-            .forEach(pedido -> {
-                updateStatusPedido(pedido.getId(), 2); // 2 -> Pagamento Expirado
-                LOG.info("Pedido com mudança de status para expirado: " + pedido.getId());
+        if (pedidosExpirados != null && !pedidosExpirados.isEmpty()) {
+            pedidosExpirados.stream()
+                    .filter(pedido -> pedido.getListaStatus().stream()
+                            .noneMatch(statusPedido -> statusPedido.getStatus().getId() == 2))
+                    .forEach(pedido -> {
+                        updateStatusPedido(pedido.getId(), 2); // 2 -> Pagamento Expirado
+                        LOG.info("Pedido com mudança de status para expirado: " + pedido.getId());
 
-                pedido.getListaItem().stream() 
-                    .forEach(item -> {
-                        Lote lote = loteRepository.findById(item.getLote().getId());
-                        if (lote != null) {
-                            lote.setQuantidade(lote.getQuantidade() + item.getQuantidade());
-                        }
+                        pedido.getListaItem().stream()
+                                .forEach(item -> {
+                                    Lote lote = loteRepository.findById(item.getLote().getId());
+                                    if (lote != null) {
+                                        lote.setQuantidade(lote.getQuantidade() + item.getQuantidade());
+                                    }
+                                });
                     });
-            });
+        }
     }
-}
 
-    @Scheduled(every = "10s")
+    @Scheduled(every = "1000s")
     @Transactional
     public void atualizarPedidosPagos() {
         List<Pedido> pedidos = pedidoRepository.findPedidosStatusDiferente();

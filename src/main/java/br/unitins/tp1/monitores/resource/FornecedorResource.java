@@ -34,7 +34,7 @@ public class FornecedorResource {
     public FornecedorService fornecedorService;
     @RolesAllowed({ "Adm" })
     @GET
-    @Path("/search/{id}")
+    @Path("/search/id/{id}")
     public Response findById(@PathParam(" id") Long id) {
         LOG.info("Buscando Fornecedor com ID: {}", id);
         FornecedorResponseDTO response = FornecedorResponseDTO.valueOf(fornecedorService.findById(id));
@@ -51,7 +51,12 @@ public class FornecedorResource {
     }
     @RolesAllowed({ "Adm" })
     @POST
+    @Path("/create")
     public Response create(@Valid FornecedorRequestDTO fornecedor) {
+        if(fornecedor == null) {
+            return Response.status(Status.BAD_REQUEST).entity("Dados inválidos.").build();
+
+        }
         LOG.info("Criando novo Fornecedor: {}", fornecedor);
         FornecedorResponseDTO response = FornecedorResponseDTO.valueOf(fornecedorService.create(fornecedor));
         LOG.info("Fornecedor criado: {}", response);
@@ -59,8 +64,12 @@ public class FornecedorResource {
     }
     @RolesAllowed({ "Adm" })
     @PUT
-    @Path("/{id}")
+    @Path("update/id/{id}")
     public Response update(@PathParam("id") Long id, @Valid FornecedorRequestDTO fornecedor) {
+        if(fornecedor == null) {
+            
+            return Response.status(Status.BAD_REQUEST).entity("Dados inválidos.").build();
+        }
         LOG.info("Atualizando Fornecedor com ID: {}", id);
         fornecedorService.update(id, fornecedor);
         LOG.info("Fornecedor com ID: {} atualizado com sucesso", id);
@@ -68,7 +77,7 @@ public class FornecedorResource {
     }
     @RolesAllowed({ "Adm" })
     @DELETE
-    @Path("/{id}")
+    @Path("delete/id/{id}")
     public Response delete(@PathParam("id") Long id) {
         LOG.info("Deletando Fornecedor com ID: {}", id);
         fornecedorService.delete(id);

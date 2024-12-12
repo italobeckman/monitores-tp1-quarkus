@@ -16,6 +16,7 @@ import br.unitins.tp1.monitores.service.MonitorService;
 import br.unitins.tp1.monitores.validation.ValidationException;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -44,7 +45,8 @@ public class MonitorResource {
     public MonitorFileServiceImpl monitorFileService;
     @RolesAllowed({ "Adm", "User" })
     @GET
-    @Path("/search/{id}")
+    @Path("/search/id/{id}")
+    @Transactional
     public Response findById(@PathParam("id") Long id) {
         LOG.info("Buscando monitor com ID: {}", id);
         Monitor monitor = monitorService.findById(id);
@@ -66,9 +68,9 @@ public class MonitorResource {
     }
     @RolesAllowed({ "Adm", "User" })
     @GET
-    @Path("/search/{modelo}")
+    @Path("/search/modelo/{modelo}")
     public Response findByModelo(@PathParam("modelo") String modelo) {
-        LOG.info("Buscando monitores com modelo: {}", modelo);
+        LOG.info("Buscando monitores com modelo: ", modelo);
         List<Monitor> monitores = monitorService.findByModelo(modelo);
         LOG.info("Encontrados {} monitores com modelo: {}", monitores.size(), modelo);
 
@@ -77,16 +79,20 @@ public class MonitorResource {
     }
     @RolesAllowed({ "Adm", "User" })
     @GET
-    @Path("/search/{marca}") 
+    @Path("/search/marca/{marca}") 
     public Response findByMarca(@PathParam("marca") String marca) { 
-        LOG.info("Buscando monitores com marca (consider renaming to fabricante): {}", marca);
+        LOG.info("Buscando monitores com marca : {}", marca);
         List<Monitor> monitores = monitorService.findByMarca(marca); 
-        LOG.info("Encontrados {} monitores com marca (consider renaming to fabricante): {}", monitores.size(), marca);
+        LOG.info("Encontrados {} monitores com marca : {}", monitores.size(), marca);
         return Response.ok(monitores.stream().map(MonitorResponseDTO::valueOf).toList()).build();
     }
     @RolesAllowed({ "Adm" })
     @POST
+    @Path("/create")
     public Response create(MonitorRequestDTO dto) {
+        if(dto == null) {
+            return Response.status(Status.BAD_REQUEST).entity("Dados inválidos.").build();
+        }
         LOG.info("Criando novo monitor: {}", dto);
         Monitor created = monitorService.create(dto);
 
@@ -102,8 +108,11 @@ public class MonitorResource {
 
     @RolesAllowed({ "Adm" })
     @PUT
-    @Path("/{id}")
+    @Path("update/id/{id}")
     public Response update(@PathParam("id") Long id, MonitorRequestDTO dto) {
+        if(dto == null) {
+            return Response.status(Status.BAD_REQUEST).entity("Dados inválidos.").build();
+        }
         LOG.info("Atualizando monitor com ID: {} com os dados: {}", id, dto);
         try {
             monitorService.update(id, dto);
@@ -117,7 +126,7 @@ public class MonitorResource {
     }
     @RolesAllowed({ "Adm" })
     @DELETE
-    @Path("/{id}")
+    @Path("delete/id/{id}")
     public Response delete(@PathParam("id") Long id) {
         LOG.info("Deletando monitor com ID: {}", id);
         try {

@@ -55,6 +55,10 @@ public class UserResource {
 
     @POST 
     public Response create(@Valid UsuarioCreateRequestDTO dto) {
+        if(dto == null) {
+            LOG.error("Requisição inválida.");
+            return Response.status(Status.BAD_REQUEST).entity("Requisição inválida.").build();
+        }
         LOG.info("Criando novo usuário.");
         Usuario usuario = usuarioService.create(dto);
         LOG.info("Usuário criado com sucesso. ID: %d", usuario.getId());
@@ -65,10 +69,14 @@ public class UserResource {
     @Path("/update")
     @RolesAllowed({"Adm", "User"})
     public Response update(@Valid UsuarioUpdateRequestDTO dto) {
+        if(dto == null) {
+            LOG.error("Requisição inválida.");
+            return Response.status(Status.BAD_REQUEST).entity("Requisição inválida.").build();
+        }
         String username = jwt.getSubject();
+        Long id = usuarioService.findByUsername(username).getId();
 
-
-        LOG.info("Atualizando usuário com ID: %d", username);
+        LOG.info("Atualizando usuário com ID: ", id);
 
         try {
             usuarioService.update(username, dto);

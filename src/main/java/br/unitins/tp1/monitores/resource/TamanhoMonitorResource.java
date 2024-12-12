@@ -52,18 +52,26 @@ public class TamanhoMonitorResource {
     }
     @RolesAllowed({ "Adm" })
     @POST
-    public Response create(TamanhoMonitorRequestDTO estado) {
-        LOG.info("Criando novo TamanhoMonitor: {}", estado);
-        TamanhoMonitorResponseDTO response = TamanhoMonitorResponseDTO.valueOf(tamanhoMonitorService.create(estado));
+    public Response create(TamanhoMonitorRequestDTO tamanhoMonitor) {
+        if(tamanhoMonitor == null) {
+            LOG.error("Dados invalidos.");
+            return Response.status(Status.BAD_REQUEST).build();
+        }
+        LOG.info("Criando novo TamanhoMonitor: {}", tamanhoMonitor);
+        TamanhoMonitorResponseDTO response = TamanhoMonitorResponseDTO.valueOf(tamanhoMonitorService.create(tamanhoMonitor));
         LOG.info("TamanhoMonitor criado: {}", response);
         return Response.status(Status.CREATED).entity(response).build();
     }
     @RolesAllowed({ "Adm" })
     @PUT
     @Path("update/{id}")
-    public Response update(@PathParam("id") Long id, TamanhoMonitorRequestDTO estado) {
+    public Response update(@PathParam("id") Long id, TamanhoMonitorRequestDTO tamanhoMonitor) {
+        if( tamanhoMonitor == null) {
+            LOG.error("Dados invalidos.");
+            return Response.status(Status.BAD_REQUEST).build();
+        }
         LOG.info("Atualizando TamanhoMonitor com ID: {}", id);
-        tamanhoMonitorService.update(id, estado);
+        tamanhoMonitorService.update(id, tamanhoMonitor);
         LOG.info("TamanhoMonitor com ID: {} atualizado com sucesso", id);
         return Response.noContent().build();
     }

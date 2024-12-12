@@ -35,7 +35,7 @@ public class TelefoneFabricanteResource {
     public TelefoneFabricanteService telefoneFabricanteService;
     @RolesAllowed({ "Adm", "User" })
     @GET
-    @Path("/{id}")
+    @Path("search/id/{id}")
     public Response findById(@PathParam("id") Long id) {
         LOG.info("Buscando telefone do fabricante com ID: {}", id);
         
@@ -43,7 +43,7 @@ public class TelefoneFabricanteResource {
     }
     @RolesAllowed({ "Adm", "User" })
     @GET
-    @Path("/numero/{numero}")
+    @Path("search/numero/{numero}")
     public Response findByNumero(@PathParam("numero") String numero) {
         LOG.info("Buscando telefone do fabricante com número: {}", numero);
         return Response.ok(TelefoneFabricanteResponseDTO.valueOf(telefoneFabricanteService.findByNumero(numero))).build();
@@ -58,7 +58,11 @@ public class TelefoneFabricanteResource {
     }
     @RolesAllowed({ "Adm" })
     @POST
+    @Path("/create")
     public Response create(@Valid TelefoneFabricanteRequestDTO telefone) {
+        if(telefone == null){
+            return Response.status(Status.BAD_REQUEST).entity("Dados inválidos.").build();
+        }
         LOG.info("Criando novo telefone de fabricante: {}", telefone);
         
         return Response.status(Status.CREATED)
@@ -66,8 +70,11 @@ public class TelefoneFabricanteResource {
     }
     @RolesAllowed({ "Adm" })
     @PUT
-    @Path("/{id}")
+    @Path("update/id/{id}")
     public Response update(@PathParam("id") Long id, @Valid TelefoneFabricanteRequestDTO telefone) {
+        if(telefone == null){
+            return Response.status(Status.BAD_REQUEST).entity("Dados inválidos.").build();
+        }
         LOG.info("Atualizando telefone do fabricante com ID: {} com os dados: {}", id, telefone);
 
         try {
@@ -82,7 +89,7 @@ public class TelefoneFabricanteResource {
     
     @RolesAllowed({ "Adm" })
     @DELETE
-    @Path("/{id}")
+    @Path("delete/id/{id}")
     public Response delete(@PathParam("id") Long id) {
         LOG.info("Deletando telefone do fabricante com ID: {}", id);
         try {

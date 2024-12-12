@@ -42,11 +42,11 @@ public class ClienteResource {
     public ClienteService clienteService;
 
     @Inject
-    ClienteFileServiceImpl clienteFileService;
+    public ClienteFileServiceImpl clienteFileService;
 
     @GET
-    @RolesAllowed({ "Adm" })
-    @Path("/search/{id}")
+    @RolesAllowed({ "Adm", "Master" })
+    @Path("/search/id/{id}")
     public Response findById(@PathParam("id") Long id) {
         logger.info("Buscando cliente com ID: ", id);
         Response response = Response.ok(ClienteResponseDTO.valueOf(clienteService.findById(id))).build();
@@ -54,18 +54,18 @@ public class ClienteResource {
         return response;
     }
 
-    @RolesAllowed({ "Adm" })
     @GET
-    @Path("/search/{nome}")
-    public Response findByUsername(@PathParam("nome") String nome) {
-        logger.info("Buscando cliente com nome: ", nome);
-        Response response = Response
-                .ok(clienteService.findByNome(nome).stream().map(o -> ClienteResponseDTO.valueOf(o)).toList()).build();
-        logger.info("Clientes encontrados: ", response.getEntity());
-        return response;
+    @RolesAllowed({"Adm", "Master"})
+    @Path("/search/nome/{nome}")
+    public Response findByNome(@PathParam("nome") String nome) {
+        logger.info("Execucao do metodo findByNome. Nome: " + nome);
+        return Response.ok(clienteService.findByNome(nome)
+                .stream()
+                .map(ClienteResponseDTO::valueOf)
+                .toList()).build();
     }
 
-    @RolesAllowed({ "Adm" })
+    @RolesAllowed({ "Adm", "Master" })
     @GET
     public Response findAll() {
         logger.info("Buscando todos os clientes");
@@ -75,10 +75,16 @@ public class ClienteResource {
         return response;
     }
 
-    @RolesAllowed({ "User" })
+    @RolesAllowed({ "User", "Master" })
     @PUT
-    @Path("/{id}")
+    @Path("/update/")
     public Response update(@Valid ClienteRequestDTO dto) {
+        if (dto == null) {
+            return Response.status(Status.BAD_REQUEST).entity("Dados inválidos.").build();
+        }
+        if (jwt == null) {
+            return Response.status(Status.UNAUTHORIZED).entity("Usuário não autenticado.").build();
+        }
         String username = jwt.getSubject();
         try {
             Cliente cliente = clienteService.findByUsername(username);
@@ -90,16 +96,16 @@ public class ClienteResource {
             
             cliente = clienteService.update(username, dto);
 
-            return Response.ok(cliente).build();
+            return Response.noContent().build();
 
         } catch (ValidationException e) {
             return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
     }
 
-    @RolesAllowed({ "Adm" })
+    @RolesAllowed({ "Adm", "Master" })
     @DELETE
-    @Path("/{id}")
+    @Path("/delete/id/{id}")
     public Response delete(@PathParam("id") Long id) {
         logger.info("Deletando cliente com ID: {}", id);
         clienteService.delete(id);
@@ -135,4 +141,24 @@ public class ClienteResource {
         logger.info("Imagem '{}' preparada para download", nomeImagem);
         return response.build();
     }
-}
+    /* 
+    @POST
+    @Path("/create/cliente")
+    public Response create(@Valid ClienteRequestDTO dto) {
+        if(dto == null) {
+            return Response.status(Status.BAD_REQUEST).entity("Requisição inválida.").build();
+        }
+        try {
+            logger.info("Criando cliente: {}", dto);
+            Cliente cliente = clienteService.create(dto);
+            logger.info("Cliente criado com sucesso: {}", cliente);
+            return Response.ok(cliente).build();
+        } catch (ValidationException e) {
+            logger.error("Erro ao criar cliente: {}", dto, e);
+            return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
+
+    }
+     */
+
+}   

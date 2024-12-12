@@ -93,10 +93,10 @@ public class UsuarioServiceImpl implements UsuarioService {
         Cliente cliente = new Cliente();
         cliente.setCpf(dto.cpf());
         cliente.setUsername(dto.username());
+        
 
-
-        clienteRepository.persist(cliente);
         usuarioRepository.persist(usuario);
+        clienteRepository.persist(cliente);
         return usuario;
     }
 

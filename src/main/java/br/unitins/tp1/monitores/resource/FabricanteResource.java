@@ -35,7 +35,7 @@ public class FabricanteResource {
     public FabricanteService fabricanteService;
     @RolesAllowed({ "Adm" })
     @GET
-    @Path("/{id}")
+    @Path("search/id/{id}")
     public Response findById(@PathParam("id") Long id) {
         LOG.info("Buscando fabricante com ID: {}", id);
 
@@ -51,8 +51,9 @@ public class FabricanteResource {
     }
     @RolesAllowed({ "Adm" })
     @GET
-    @Path("/search/{nome}")
+    @Path("/search/nome/{nome}")
     public Response findByNome(@PathParam("nome") String nome) {
+
         LOG.info("Buscando fabricantes com nome: {}", nome);
         List<Fabricante> fabricantes = fabricanteService.findByNome(nome);
         LOG.info("Encontrados {} fabricantes com o nome: {}", fabricantes.size(), nome);
@@ -68,7 +69,11 @@ public class FabricanteResource {
     }
     @RolesAllowed({ "Adm" })
     @POST
+    @Path("/create")
     public Response create(@Valid FabricanteRequestDTO fabricanteDTO) {
+        if(fabricanteDTO == null){
+            return Response.status(Status.BAD_REQUEST).entity("Dados inválidos.").build();
+        }
         LOG.info("Criando novo fabricante: {}", fabricanteDTO);
         Fabricante created = fabricanteService.create(fabricanteDTO);
         LOG.info("Fabricante criado com sucesso: {}", FabricanteResponseDTO.valueOf(created));
@@ -76,8 +81,11 @@ public class FabricanteResource {
     }
     @RolesAllowed({ "Adm" })
     @PUT
-    @Path("/{id}")
+    @Path("update/id/{id}")
     public Response update(@PathParam("id") Long id, @Valid FabricanteRequestDTO fabricanteDTO) {
+        if(fabricanteDTO == null) {
+            return Response.status(Status.BAD_REQUEST).entity("Dados inválidos.").build();
+        }
         LOG.info("Atualizando fabricante com ID: {} com os dados: {}", id, fabricanteDTO);
         try {
             fabricanteService.update(id, fabricanteDTO);
@@ -92,7 +100,7 @@ public class FabricanteResource {
     }
     @RolesAllowed({ "Adm" })
     @DELETE
-    @Path("/{id}")
+    @Path("delete/id/{id}")
     public Response delete(@PathParam("id") Long id) {
         LOG.info("Deletando fabricante com ID: {}", id);
         try {

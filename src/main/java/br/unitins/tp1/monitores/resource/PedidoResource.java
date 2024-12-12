@@ -12,6 +12,7 @@ import br.unitins.tp1.monitores.dto.pagamento.BoletoResponseDTO;
 import br.unitins.tp1.monitores.dto.pagamento.PixResponseDTO;
 import br.unitins.tp1.monitores.dto.pedido.PedidoDTO;
 import br.unitins.tp1.monitores.dto.pedido.PedidoResponseDTO;
+import br.unitins.tp1.monitores.dto.pedido.PedidoSimplesResponseDTO;
 import br.unitins.tp1.monitores.dto.pedido.StatusPatchDTO;
 import br.unitins.tp1.monitores.model.Cliente;
 import br.unitins.tp1.monitores.service.ClienteService;
@@ -53,13 +54,14 @@ public class PedidoResource {
     @Inject
     UsuarioService usuarioService;
 
-    @POST 
-    @RolesAllowed({ "User" }) 
+    @POST
+    @RolesAllowed({ "User" })
     public Response create(@Valid PedidoDTO pedidoDTO, @Context SecurityContext securityContext) {
         if (pedidoDTO == null) {
-            throw new ValidationException("RequestNULL ", "O request não pode ser nulo.");
+            Response.status(Response.Status.BAD_REQUEST).entity("Dados invalidos").build();
         }
-        if (pedidoDTO.itens().isEmpty()){
+
+        if (pedidoDTO.itens().isEmpty()) {
             throw new ValidationException("RequestItensNULL ", "O request não pode ser nulo.");
 
         }
@@ -88,14 +90,67 @@ public class PedidoResource {
     }
 
     @GET
-    @Path("/meus-pedidos")
+    @Path("/meus-pedidos/simples")
     @RolesAllowed({ "User" })
-    public Response getMeusPedidos(@Context SecurityContext securityContext) {
+    public Response getMeusPedidosSimples(@Context SecurityContext securityContext) {
         String username = jwt.getSubject();
         LOG.info("Buscando pedidos para o usuário: {}", username);
-        List<PedidoResponseDTO> pedidos = pedidoService.findByUsername(username);
+        List<PedidoSimplesResponseDTO> pedidos = pedidoService.findBySimplesUsername(username);
         LOG.info("Encontrados {} pedidos para o usuário: {}", pedidos.size(), username);
         return Response.ok(pedidos).build();
+    }
+
+    @GET
+    @Path("/meus-pedidos/{id}")
+    @RolesAllowed({ "User" })
+    public Response getPedidoByIdForUser(@PathParam("id") Long id, @Context SecurityContext securityContext) {
+        try {
+            LOG.info("Buscando pedido com ID: {}", id);
+            PedidoResponseDTO pedido = pedidoService.findById(id);
+            if (pedido == null) {
+                LOG.warn("Pedido com ID: {} não encontrado", id);
+                throw new ValidationException("pedido", "pedido não encontrado");
+
+            }
+            if (pedido.cliente() == null) {
+                LOG.warn("Pedido com ID: {} não tem cliente associado", id);
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                        .entity("Pedido não possui cliente associado.")
+                        .build();
+            }
+            String username = jwt.getSubject();
+            if (username == null) {
+                LOG.warn("Usuário não autenticado");
+                return Response.status(Response.Status.UNAUTHORIZED)
+                        .entity("Usuário não autenticado.")
+                        .build();
+            }
+
+            LOG.info("Buscando pedido com ID: {} para o usuário: {}", id, username);
+
+            Cliente cliente = clienteService.findByUsername(username);
+            Long idCliente = cliente.getId();
+            if (!pedido.cliente().id().equals(idCliente)) {
+                LOG.warn("Pedido com ID: {} não pertence ao usuário: {}", id, username);
+                return Response.status(Response.Status.UNAUTHORIZED)
+                        .entity("Pedido não pertence ao usuário autenticado.")
+                        .build();
+            }
+            LOG.info("Pedido com ID: {} encontrado para o usuário: {}", id, username);
+            return Response.ok(pedido).build();
+
+        } catch (ValidationException e) {
+            LOG.error("Erro de validação ao buscar pedido com ID: {}", id, e);
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Erro de validação: " + e.getMessage())
+                    .build();
+
+        } catch (Exception e) {
+            LOG.error("Erro inesperado ao buscar pedido com ID: {}", id, e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Erro inesperado ao processar a solicitação.")
+                    .build();
+        }
     }
 
     @GET
